@@ -100,10 +100,15 @@ const Me: NextPage = () => {
           <a>@Username</a>
         </h1>
 
-        <p className="text my-2">This is an example of a bio</p>
+        <p
+          style={{ width: "500px" }}
+          className="text my-2 p-5 rounded-lg text-gray-500 text-center"
+        >
+          This is an example of a bio
+        </p>
 
         <div className=" min-w-0 sm: w-96 max-w-lg">
-          <button className=" transition ease-in-out rounded-sm bg-teal-500 p-2 w-full text-white hover:scale-105 hover:bg-teal-600">
+          <button className=" transition my-2 ease-in-out rounded-sm bg-teal-50 p-2 w-full text-teal-500 hover:bg-teal-200">
             New link
           </button>
         </div>
@@ -114,6 +119,7 @@ const Me: NextPage = () => {
               <div
                 {...provided.droppableProps}
                 ref={provided.innerRef}
+                style={{ width: "800px" }}
                 // style={getListStyle(snapshot.isDraggingOver)}
               >
                 {state.map((item, index) => (
@@ -133,13 +139,13 @@ const Me: NextPage = () => {
                           className="flex items-center justify-center mr-5"
                         >
                           <FontAwesomeIcon
-                            className="w-5 h-5 text-gray-400"
+                            className="w-5 h-5 text-black text-opacity-20"
                             icon={faGripVertical}
                           />
                         </div>
                         <a
                           href="https://nextjs.org/docs"
-                          className="transition ease-in-out m-1 w-96 max-w-full p-3 border bg-stone-100 border-stone-200 rounded-md flex hover:scale-105"
+                          className="transition ease-in-out my-1 flex-grow max-w-full p-3 bg-stone-50  rounded-l-md flex items-center"
                           // style={getItemStyle(
                           //   snapshot.isDragging,
                           //   provided.draggableProps.style
@@ -149,23 +155,22 @@ const Me: NextPage = () => {
                             loader={myLoader}
                             src="me.png"
                             alt="Picture of the author"
-                            className="rounded-full"
-                            width={50}
-                            height={50}
+                            className="rounded-md"
+                            width={40}
+                            height={40}
                           />
                           <div className="ml-5">
-                            <h2 className="text-lg">{item.content}</h2>
-                            <p className="text">optional info about the link</p>
+                            <h2 className="text-md">{item.content}</h2>
                           </div>
                         </a>
-                        <div className="align-center">
-                          <button className=" h-9 w-9 p-2 rounded-sm hover:bg-amber-100">
+                        <div className="align-center my-1 flex">
+                          <button className=" h-full w-16 flex justify-center items-center p-2 self-center bg-amber-50 hover:bg-amber-100">
                             <FontAwesomeIcon
                               className="w-4 h-4 text-amber-500"
                               icon={faEdit}
                             />
                           </button>
-                          <button className=" h-9 w-9 p-2 rounded-sm hover:bg-red-100">
+                          <button className=" h-full w-16 p-2 flex justify-center items-center self-center rounded-r-md  bg-red-50 hover:bg-red-100">
                             <FontAwesomeIcon
                               className="w-4 h-4 text-red-500"
                               icon={faTrashAlt}
