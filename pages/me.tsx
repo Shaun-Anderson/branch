@@ -108,7 +108,7 @@ const Me: NextPage = () => {
         </p>
 
         <div className=" min-w-0 sm: w-96 max-w-lg">
-          <button className=" transition my-2 ease-in-out rounded-sm bg-teal-50 p-2 w-full text-teal-500 hover:bg-teal-200">
+          <button className=" transition my-2 ease-in-out rounded-sm bg-teal-50 p-2 w-full text-teal-500 hover:bg-teal-100">
             New link
           </button>
         </div>
