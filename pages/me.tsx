@@ -1,9 +1,9 @@
 import type { GetServerSideProps, NextPage } from "next";
 import Head from "next/head";
-import Image from "next/image";
+// import Image from "next/image";
 import styles from "../styles/Home.module.css";
 import { DropResult, resetServerContext } from "react-beautiful-dnd";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { DragDropContext, Droppable, Draggable } from "../components/dnd";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
@@ -12,16 +12,30 @@ import {
   faEdit,
   faTrashAlt,
 } from "@fortawesome/free-solid-svg-icons";
+import { Drawer } from "../components/drawer";
+import { Navigation } from "../components/navigation";
+import {
+  supabaseClient,
+  User,
+  withAuthRequired,
+} from "@supabase/supabase-auth-helpers/nextjs";
+import { useUser } from "../utils/useUser";
+import Avatar from "../components/Avatar";
 
 interface Item {
   id: string;
   content: string;
 }
 
-export const getServerSideProps: GetServerSideProps = async (context) => {
+export const _getServerSideProps: GetServerSideProps = async (context) => {
   resetServerContext();
   return { props: {} };
 };
+
+export const getServerSideProps = withAuthRequired({
+  getServerSideProps: _getServerSideProps,
+  redirectTo: "/signin",
+});
 
 // fake data generator
 const getItems = (count: number): Item[] =>
@@ -42,27 +56,20 @@ const reorder = (
   return result;
 };
 
-// const getItemStyle = (
-//   isDragging: boolean,
-//   draggableStyle: DraggingStyle | NotDraggingStyle | undefined
-// ): React.CSSProperties => ({
-//   // some basic styles to make the items look a bit nicer
-//   userSelect: "none",
-//   padding: grid * 2,
-//   margin: `0 0 ${grid}px 0`,
-
-//   // change background colour if dragging
-//   background: isDragging ? "lightgreen" : "grey",
-
-//   // styles we need to apply on draggables
-//   ...draggableStyle,
-// });
-
-const Me: NextPage = () => {
+const Me: NextPage = ({ user }: { user: User }) => {
+  const [isOpen, setIsOpen] = useState(false);
+  const { isLoading, userDetails } = useUser();
+  const [avatar_url, setAvatarUrl] = useState(userDetails?.avatar_url);
+  const [loading, setLoading] = useState(false);
+  const [username, setUsername] = useState(userDetails?.full_name);
   const [state, setState] = useState(getItems(5));
   const myLoader = ({ src, width }) => {
     return `https://via.placeholder.com/${width}`;
   };
+
+  useEffect(() => {
+    setAvatarUrl(userDetails?.avatar_url);
+  }, [userDetails]);
 
   const onDragEnd = (result: DropResult): void => {
     // dropped outside the list
@@ -79,6 +86,33 @@ const Me: NextPage = () => {
     setState(items);
   };
 
+  async function updateProfile({ username, avatar_url }) {
+    try {
+      setLoading(true);
+      // const user = supabaseClient.auth.user();
+      console.log("Upsert");
+      console.log(user);
+      const updates = {
+        id: user?.id,
+        username,
+        avatar_url,
+        updated_at: new Date(),
+      };
+
+      let { error } = await supabaseClient.from("profiles").upsert(updates, {
+        returning: "minimal", // Don't return the value after inserting
+      });
+
+      if (error) {
+        throw error;
+      }
+    } catch (error) {
+      //alert(error.message)
+    } finally {
+      setLoading(false);
+    }
+  }
+
   return (
     <div className={styles.container}>
       <Head>
@@ -86,18 +120,30 @@ const Me: NextPage = () => {
         <meta name="description" content="Customise you branches" />
         <link rel="icon" href="/favicon.ico" />
       </Head>
-
+      <Navigation />
       <main className={styles.main}>
-        <Image
+        {/* <Image
           loader={myLoader}
-          src="me.png"
+          src={userDetails?.avatar_url ?? ""}
           alt="Picture of the author"
           className="rounded-full"
           width={100}
           height={100}
+        /> */}
+        <Avatar
+          url={avatar_url}
+          size={100}
+          onUpload={(url) => {
+            setAvatarUrl(url);
+            updateProfile({ username, avatar_url: url });
+          }}
         />
         <h1 className="text-3xl font-bold mt-5">
           <a>@Username</a>
+          <input
+            value={username}
+            onChange={(event) => setUsername(event.target.value)}
+          ></input>
         </h1>
 
         <p
@@ -139,7 +185,7 @@ const Me: NextPage = () => {
                           className="flex items-center justify-center mr-5"
                         >
                           <FontAwesomeIcon
-                            className="w-5 h-5 text-black text-opacity-20"
+                            className="w-3 h-3 text-black text-opacity-20"
                             icon={faGripVertical}
                           />
                         </div>
@@ -151,20 +197,23 @@ const Me: NextPage = () => {
                           //   provided.draggableProps.style
                           // )}
                         >
-                          <Image
+                          {/* <Image
                             loader={myLoader}
                             src="me.png"
                             alt="Picture of the author"
                             className="rounded-md"
                             width={40}
                             height={40}
-                          />
+                          /> */}
                           <div className="ml-5">
                             <h2 className="text-md">{item.content}</h2>
                           </div>
                         </a>
                         <div className="align-center my-1 flex">
-                          <button className=" h-full w-16 flex justify-center items-center p-2 self-center bg-amber-50 hover:bg-amber-100">
+                          <button
+                            className=" h-full w-16 flex justify-center items-center p-2 self-center bg-amber-50 hover:bg-amber-100"
+                            onClick={() => setIsOpen(true)}
+                          >
                             <FontAwesomeIcon
                               className="w-4 h-4 text-amber-500"
                               icon={faEdit}
@@ -186,30 +235,9 @@ const Me: NextPage = () => {
             )}
           </Droppable>
         </DragDropContext>
-        {/* <ul>
-<a
-                          href="https://nextjs.org/docs"
-                          className="transition ease-in-out w-96 max-w-full p-3 border bg-stone-100 border-stone-200 rounded-md flex hover:scale-105"
-
-                          // style={getItemStyle(
-                          //   snapshot.isDragging,
-                          //   provided.draggableProps.style
-                          // )}
-                        >
-                          <Image
-                            loader={myLoader}
-                            src="me.png"
-                            alt="Picture of the author"
-                            className="rounded-full"
-                            width={50}
-                            height={50}
-                          />
-                          <div className="ml-5">
-                            <h2 className="text-lg">{item.content}</h2>
-                            <p className="text">optional info about the link</p>
-                          </div>
-                        </a>
-        </ul> */}
+        <Drawer isOpen={isOpen} setIsOpen={setIsOpen} title="Edit link">
+          hi there
+        </Drawer>
       </main>
     </div>
   );
