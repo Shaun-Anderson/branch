@@ -21,11 +21,8 @@ import {
 } from "@supabase/supabase-auth-helpers/nextjs";
 import { useUser } from "../utils/useUser";
 import Avatar from "../components/Avatar";
-
-interface Item {
-  id: string;
-  content: string;
-}
+import { AddForm } from "../components/AddForm";
+import { Link } from "../types/Link";
 
 export const _getServerSideProps: GetServerSideProps = async (context) => {
   resetServerContext();
@@ -36,13 +33,6 @@ export const getServerSideProps = withAuthRequired({
   getServerSideProps: _getServerSideProps,
   redirectTo: "/signin",
 });
-
-// fake data generator
-const getItems = (count: number): Item[] =>
-  Array.from({ length: count }, (v, k) => k).map((k) => ({
-    id: `item-${k}`,
-    content: `item ${k}`,
-  }));
 
 const reorder = (
   list: Item[],
@@ -58,14 +48,48 @@ const reorder = (
 
 const Me: NextPage = ({ user }: { user: User }) => {
   const [isOpen, setIsOpen] = useState(false);
+  const [addOpen, setAddOpen] = useState(false);
   const { isLoading, userDetails } = useUser();
   const [avatar_url, setAvatarUrl] = useState(userDetails?.avatar_url);
   const [loading, setLoading] = useState(false);
   const [username, setUsername] = useState(userDetails?.full_name);
-  const [state, setState] = useState(getItems(5));
+  const [links, setLinks] = useState<Link[]>([]);
   const myLoader = ({ src, width }) => {
     return `https://via.placeholder.com/${width}`;
   };
+
+  useEffect(() => {
+    supabaseClient
+      .from<Link>("links")
+      .select("*")
+      .order("id", { ascending: false })
+      .then(({ data, error }) => {
+        console.log(error);
+        console.log(data);
+        if (!error) {
+          setLinks(data ?? []);
+        }
+      });
+  }, [userDetails]);
+
+  // load in links
+  useEffect(() => {
+    console.log("user: " + user.id);
+    const todoListener = supabaseClient
+      .from("links")
+      .on("*", (payload) => {
+        const newLink = payload.new;
+        setLinks((oldData) => {
+          const newTodos = [...oldData, newLink];
+          newTodos.sort((a, b) => b.id - a.id);
+          return newTodos;
+        });
+      })
+      .subscribe();
+    return () => {
+      todoListener.unsubscribe();
+    };
+  }, []);
 
   useEffect(() => {
     setAvatarUrl(userDetails?.avatar_url);
@@ -77,13 +101,13 @@ const Me: NextPage = ({ user }: { user: User }) => {
       return;
     }
 
-    const items: Item[] = reorder(
-      state,
+    const items: Link[] = reorder(
+      links,
       result.source.index,
       result.destination.index
     );
 
-    setState(items);
+    setLinks(items);
   };
 
   async function updateProfile({ username, avatar_url }) {
@@ -122,14 +146,6 @@ const Me: NextPage = ({ user }: { user: User }) => {
       </Head>
       <Navigation />
       <main className={styles.main}>
-        {/* <Image
-          loader={myLoader}
-          src={userDetails?.avatar_url ?? ""}
-          alt="Picture of the author"
-          className="rounded-full"
-          width={100}
-          height={100}
-        /> */}
         <Avatar
           url={avatar_url}
           size={100}
@@ -139,9 +155,8 @@ const Me: NextPage = ({ user }: { user: User }) => {
           }}
         />
         <h1 className="text-3xl font-bold mt-5">
-          <a>@Username</a>
           <input
-            value={username}
+            value={`@${userDetails?.username}`}
             onChange={(event) => setUsername(event.target.value)}
           ></input>
         </h1>
@@ -150,11 +165,14 @@ const Me: NextPage = ({ user }: { user: User }) => {
           style={{ width: "500px" }}
           className="text my-2 p-5 rounded-lg text-gray-500 text-center"
         >
-          This is an example of a bio
+          {userDetails?.bio}
         </p>
 
         <div className=" min-w-0 sm: w-96 max-w-lg">
-          <button className=" transition my-2 ease-in-out rounded-sm bg-teal-50 p-2 w-full text-teal-500 hover:bg-teal-100">
+          <button
+            onClick={() => setAddOpen(true)}
+            className=" transition my-2 ease-in-out rounded-sm bg-teal-50 p-2 w-full text-teal-500 hover:bg-teal-100"
+          >
             New link
           </button>
         </div>
@@ -168,17 +186,17 @@ const Me: NextPage = ({ user }: { user: User }) => {
                 style={{ width: "800px" }}
                 // style={getListStyle(snapshot.isDraggingOver)}
               >
-                {state.map((item, index) => (
-                  <Draggable key={item.id} draggableId={item.id} index={index}>
+                {links.map((item: Link, index: number) => (
+                  <Draggable
+                    key={item.id}
+                    draggableId={item.id as string}
+                    index={index}
+                  >
                     {(provided, snapshot): JSX.Element => (
                       <div
                         ref={provided.innerRef}
                         {...provided.draggableProps}
                         className="flex"
-                        // style={getItemStyle(
-                        //   snapshot.isDragging,
-                        //   provided.draggableProps.style
-                        // )}
                       >
                         <div
                           {...provided.dragHandleProps}
@@ -190,23 +208,11 @@ const Me: NextPage = ({ user }: { user: User }) => {
                           />
                         </div>
                         <a
-                          href="https://nextjs.org/docs"
+                          href={item.url}
                           className="transition ease-in-out my-1 flex-grow max-w-full p-3 bg-stone-50  rounded-l-md flex items-center"
-                          // style={getItemStyle(
-                          //   snapshot.isDragging,
-                          //   provided.draggableProps.style
-                          // )}
                         >
-                          {/* <Image
-                            loader={myLoader}
-                            src="me.png"
-                            alt="Picture of the author"
-                            className="rounded-md"
-                            width={40}
-                            height={40}
-                          /> */}
                           <div className="ml-5">
-                            <h2 className="text-md">{item.content}</h2>
+                            <h2 className="text-md">{item.title}</h2>
                           </div>
                         </a>
                         <div className="align-center my-1 flex">
@@ -237,6 +243,9 @@ const Me: NextPage = ({ user }: { user: User }) => {
         </DragDropContext>
         <Drawer isOpen={isOpen} setIsOpen={setIsOpen} title="Edit link">
           hi there
+        </Drawer>
+        <Drawer isOpen={addOpen} setIsOpen={setAddOpen} title="Add link">
+          <AddForm user={user} />
         </Drawer>
       </main>
     </div>
