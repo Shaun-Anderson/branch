@@ -16,8 +16,8 @@ export const Drawer: FC<DrawerProps> = ({
       className={
         " fixed overflow-hidden z-10 bg-gray-900 bg-opacity-25 inset-0 transform ease-in-out " +
         (isOpen
-          ? " transition-opacity opacity-100 duration-500 translate-x-0  "
-          : " transition-all opacity-0 duration-0 delay-500 translate-x-full  ")
+          ? " block transition-opacity opacity-100 duration-500"
+          : " hidden transition-all opacity-0 duration-0 delay-500 ")
       }
     >
       <section
@@ -26,7 +26,7 @@ export const Drawer: FC<DrawerProps> = ({
           (isOpen ? " translate-x-0 " : " translate-x-full ")
         }
       >
-        <article className="relative w-screen border-l-xl max-w-lg pb-10 flex flex-col space-y-6 overflow-y-scroll h-full">
+        <article className="relative w-screen border-l-xl max-w-lg pb-10 flex flex-col overflow-y-scroll h-full">
           <header className="p-5 font-bold text-2xl">{title}</header>
           {children}
         </article>
