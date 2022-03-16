@@ -22,12 +22,12 @@ export const Drawer: FC<DrawerProps> = ({
     >
       <section
         className={
-          " w-screen max-w-lg right-0 absolute bg-white h-full shadow-xl delay-400 duration-500 ease-in-out transition-all transform  " +
+          " w-screen max-w-lg z-50 rounded-l-xl right-0 absolute bg-white h-full shadow-xl delay-400 duration-500 ease-in-out transition-all transform  " +
           (isOpen ? " translate-x-0 " : " translate-x-full ")
         }
       >
-        <article className="relative w-screen max-w-lg pb-10 flex flex-col space-y-6 overflow-y-scroll h-full">
-          <header className="p-4 font-bold text-xl">{title}</header>
+        <article className="relative w-screen border-l-xl max-w-lg pb-10 flex flex-col space-y-6 overflow-y-scroll h-full">
+          <header className="p-5 font-bold text-2xl">{title}</header>
           {children}
         </article>
       </section>

@@ -21,7 +21,7 @@ export const Navigation = () => {
     return userDetails.avatar_url;
   };
   return (
-    <nav className="sticky top-0  z-40 transition-all duration-150">
+    <nav className="sticky top-0  z-10 transition-all duration-150">
       <a href="#skip" className="sr-only focus:not-sr-only">
         Skip to content
       </a>
