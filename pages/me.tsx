@@ -28,7 +28,10 @@ export const _getServerSideProps: GetServerSideProps = async ({ req }) => {
   resetServerContext();
   const { user, token } = await supabaseClient.auth.api.getUserByCookie(req);
   supabaseClient.auth.setAuth(token);
-  var { data, error } = await supabaseClient.from<Link>("links").select("*");
+  var { data, error } = await supabaseClient
+    .from<Link>("links")
+    .select("*")
+    .order("order");
   return { props: { data: data } };
 };
 
@@ -79,7 +82,7 @@ const Me: NextPage = ({ user, data }: { user: User; data: Link[] }) => {
     setAvatarUrl(userDetails?.avatar_url);
   }, [userDetails]);
 
-  const onDragEnd = (result: DropResult): void => {
+  const onDragEnd = async (result: DropResult) => {
     // dropped outside the list
     if (!result.destination) {
       return;
@@ -89,6 +92,21 @@ const Me: NextPage = ({ user, data }: { user: User; data: Link[] }) => {
       links,
       result.source.index,
       result.destination.index
+    );
+
+    const newItems = items.map((item: Link, index: number) => {
+      const updated = { ...item, order: index + 1 };
+      return updated;
+    });
+
+    console.log(items);
+    console.log(newItems);
+
+    // update order in supabase
+    const { error } = await supabaseClient.from("links").upsert(
+      newItems.map((item) => {
+        return { id: item.id, order: item.order, user_id: item.user_id };
+      })
     );
 
     setLinks(items);

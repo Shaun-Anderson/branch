@@ -3,4 +3,5 @@ export interface Link {
   user_id: string;
   title: string;
   url: string;
+  order: number;
 }
