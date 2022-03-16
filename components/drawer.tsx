@@ -27,7 +27,7 @@ export const Drawer: FC<DrawerProps> = ({
         }
       >
         <article className="relative w-screen max-w-lg pb-10 flex flex-col space-y-6 overflow-y-scroll h-full">
-          <header className="p-4 font-bold text-lg">{title}</header>
+          <header className="p-4 font-bold text-xl">{title}</header>
           {children}
         </article>
       </section>
