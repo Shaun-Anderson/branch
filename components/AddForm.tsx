@@ -6,7 +6,13 @@ import { supabaseClient, User } from "@supabase/supabase-auth-helpers/nextjs";
 import { Link } from "../types/Link";
 import { useUser } from "../utils/useUser";
 
-export const AddForm = ({ user }: { user: User }) => {
+export const AddForm = ({
+  user,
+  onSubmit,
+}: {
+  user: User;
+  onSubmit: () => void;
+}) => {
   const schema = yup
     .object({
       title: yup.string().required(),
@@ -21,15 +27,17 @@ export const AddForm = ({ user }: { user: User }) => {
   } = useForm<{ id: number; title: string; url: number }>({
     resolver: yupResolver(schema),
   });
-  const onSubmit = async (data: any) => {
+  const submit = async (data: any) => {
     data.user_id = user.id;
     let { error } = await supabaseClient.from("links").insert(data);
-    console.log(error);
+    if (!error) {
+      onSubmit();
+    }
   };
   return (
     <form
-      onSubmit={handleSubmit(onSubmit, (errors) => console.log(errors))}
-      className="p-2"
+      onSubmit={handleSubmit(submit, (errors) => console.log(errors))}
+      className="px-5"
     >
       <input
         className="w-full bg-gray-100 py-2 px-3 border border-gray-200 mb-1 rounded eading-tight focus:outline-none focus:shadow-outline"

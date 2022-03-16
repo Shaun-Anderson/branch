@@ -61,39 +61,19 @@ const Me: NextPage = ({ user, data }: { user: User; data: Link[] }) => {
     return `https://via.placeholder.com/${width}`;
   };
 
-  // useEffect(() => {
-  //   supabaseClient
-  //     .from<Link>("links")
-  //     .select("*")
-  //     .order("id", { ascending: false })
-  //     .then(({ data, error }) => {
-  //       console.log(error);
-  //       console.log(data);
-  //       if (!error) {
-  //         setLinks(data ?? []);
-  //       }
-  //     });
-  // }, [userDetails]);
-
-  // load in links
-  useEffect(() => {
-    console.log("set up listener");
-    const todoListener = supabaseClient
-      .from("links")
-      .on("*", (payload) => {
-        console.log("Listener triggered");
-        const newLink = payload.new;
-        setLinks((oldData) => {
-          const newTodos = [...oldData, newLink];
-          newTodos.sort((a, b) => b.id - a.id);
-          return newTodos;
-        });
-      })
-      .subscribe();
-    return () => {
-      todoListener.unsubscribe();
-    };
-  }, []);
+  const fetchLinks = () => {
+    supabaseClient
+      .from<Link>("links")
+      .select("*")
+      .order("id", { ascending: false })
+      .then(({ data, error }) => {
+        console.log(error);
+        console.log(data);
+        if (!error) {
+          setLinks(data ?? []);
+        }
+      });
+  };
 
   useEffect(() => {
     setAvatarUrl(userDetails?.avatar_url);
@@ -249,7 +229,13 @@ const Me: NextPage = ({ user, data }: { user: User; data: Link[] }) => {
           hi there
         </Drawer>
         <Drawer isOpen={addOpen} setIsOpen={setAddOpen} title="Add link">
-          <AddForm user={user} />
+          <AddForm
+            user={user}
+            onSubmit={() => {
+              fetchLinks();
+              setAddOpen(false);
+            }}
+          />
         </Drawer>
       </main>
     </div>
