@@ -23,6 +23,7 @@ export const AddForm = ({
     register,
     handleSubmit,
     watch,
+    control,
     formState: { errors },
   } = useForm<{ id: number; title: string; url: number }>({
     resolver: yupResolver(schema),
@@ -39,22 +40,11 @@ export const AddForm = ({
       onSubmit={handleSubmit(submit, (errors) => console.log(errors))}
       className="px-5"
     >
-      <input
-        className="w-full bg-gray-100 py-2 px-3 border border-gray-200 mb-1 rounded eading-tight focus:outline-none focus:shadow-outline"
-        type="text"
-        placeholder="title"
-        {...register("title")}
-      ></input>
-      {errors.title && <span>{errors.title.message}</span>}
-      <input
-        className="w-full bg-gray-100 py-2 px-3 mb-1 rounded"
-        type="text"
-        placeholder="url"
-        {...register("url")}
-      ></input>
+      <Input label="Title" name="title" control={control} />
+      <Input label="Url" name="url" control={control} />
       <input
         type="submit"
-        className="p-2 rounded bg-indigo-100 w-full text-indigo-400"
+        className="transition cursor-pointer my-2 ease-in-out rounded-sm bg-indigo-50 p-2 w-full text-indigo-500 hover:bg-indigo-100"
       />
     </form>
   );
