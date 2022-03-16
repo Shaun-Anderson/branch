@@ -1,33 +1,34 @@
 import React, { InputHTMLAttributes, ChangeEvent } from "react";
+import {
+  useController,
+  Control,
+  UseFormRegister,
+  FieldValues,
+  UseControllerProps,
+} from "react-hook-form";
 
-interface Props extends Omit<InputHTMLAttributes<any>, "onChange"> {
-  className?: string;
-  onChange: (value: string) => void;
+interface InputProps extends UseControllerProps<T> {
+  label: string;
+  placeholder?: string;
+  register?: UseFormRegister<FieldValues>;
 }
-const Input = (props: Props) => {
-  const { className, children, onChange, ...rest } = props;
-  const handleOnChange = (e: ChangeEvent<HTMLInputElement>) => {
-    if (onChange) {
-      onChange(e.target.value);
-    }
-    return null;
-  };
-
+const Input = (props: InputProps) => {
+  const { field, fieldState } = useController(props);
   return (
-    <label>
-      <input
-        className={
-          "shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" +
-          className
-        }
-        onChange={handleOnChange}
-        autoComplete="off"
-        autoCorrect="off"
-        autoCapitalize="off"
-        spellCheck="false"
-        {...rest}
-      />
-    </label>
+    <div className="mb-2">
+      <label className="block text-sm font-medium text-gray-700">
+        {props.label}
+      </label>
+      <div className="mt-1 relative rounded-md shadow-sm">
+        <input
+          type="text"
+          {...field}
+          placeholder={props.placeholder}
+          className="focus:ring-indigo-500 focus:border-indigo-500 block w-full px-4 py-2 sm:text-sm border border-gray-300 rounded-md"
+        />
+        {fieldState.error && <p>{fieldState.error.message}</p>}
+      </div>
+    </div>
   );
 };
 
