@@ -24,9 +24,12 @@ import Avatar from "../components/Avatar";
 import { AddForm } from "../components/AddForm";
 import { Link } from "../types/Link";
 
-export const _getServerSideProps: GetServerSideProps = async (context) => {
+export const _getServerSideProps: GetServerSideProps = async ({ req }) => {
   resetServerContext();
-  return { props: {} };
+  const { user, token } = await supabaseClient.auth.api.getUserByCookie(req);
+  supabaseClient.auth.setAuth(token);
+  var { data, error } = await supabaseClient.from<Link>("links").select("*");
+  return { props: { data: data } };
 };
 
 export const getServerSideProps = withAuthRequired({
@@ -46,38 +49,39 @@ const reorder = (
   return result;
 };
 
-const Me: NextPage = ({ user }: { user: User }) => {
+const Me: NextPage = ({ user, data }: { user: User; data: Link[] }) => {
   const [isOpen, setIsOpen] = useState(false);
   const [addOpen, setAddOpen] = useState(false);
   const { isLoading, userDetails } = useUser();
   const [avatar_url, setAvatarUrl] = useState(userDetails?.avatar_url);
   const [loading, setLoading] = useState(false);
   const [username, setUsername] = useState(userDetails?.full_name);
-  const [links, setLinks] = useState<Link[]>([]);
+  const [links, setLinks] = useState<Link[]>(data);
   const myLoader = ({ src, width }) => {
     return `https://via.placeholder.com/${width}`;
   };
 
-  useEffect(() => {
-    supabaseClient
-      .from<Link>("links")
-      .select("*")
-      .order("id", { ascending: false })
-      .then(({ data, error }) => {
-        console.log(error);
-        console.log(data);
-        if (!error) {
-          setLinks(data ?? []);
-        }
-      });
-  }, [userDetails]);
+  // useEffect(() => {
+  //   supabaseClient
+  //     .from<Link>("links")
+  //     .select("*")
+  //     .order("id", { ascending: false })
+  //     .then(({ data, error }) => {
+  //       console.log(error);
+  //       console.log(data);
+  //       if (!error) {
+  //         setLinks(data ?? []);
+  //       }
+  //     });
+  // }, [userDetails]);
 
   // load in links
   useEffect(() => {
-    console.log("user: " + user.id);
+    console.log("set up listener");
     const todoListener = supabaseClient
       .from("links")
       .on("*", (payload) => {
+        console.log("Listener triggered");
         const newLink = payload.new;
         setLinks((oldData) => {
           const newTodos = [...oldData, newLink];
