@@ -55,22 +55,21 @@ export default function Avatar({ url, size, onUpload }) {
 
   return (
     <div>
-      {avatarUrl ? (
-        <img
-          src={avatarUrl}
-          alt="Avatar"
-          className="avatar image"
-          style={{ height: size, width: size }}
-        />
-      ) : (
-        <div
-          className="avatar no-image"
-          style={{ height: size, width: size }}
-        />
-      )}
       <div style={{ width: size }}>
         <label className="button primary block" htmlFor="single">
-          {uploading ? "Uploading ..." : "Upload"}
+          {avatarUrl ? (
+            <img
+              src={avatarUrl}
+              alt="Avatar"
+              className="avatar image rounded-full cursor-pointer"
+              style={{ height: size, width: size }}
+            />
+          ) : (
+            <div
+              className="avatar no-image bg-gray-500 rounded-full"
+              style={{ height: size, width: size }}
+            />
+          )}
         </label>
         <input
           style={{
