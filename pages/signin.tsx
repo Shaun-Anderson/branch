@@ -7,6 +7,7 @@ import { supabaseClient } from "@supabase/supabase-auth-helpers/nextjs";
 import { Provider } from "@supabase/supabase-js";
 import { getURL } from "../utils/helpers";
 import Input from "../components/Input";
+import Button from "../components/Button";
 
 const SignIn = () => {
   const [email, setEmail] = useState("");
@@ -55,7 +56,7 @@ const SignIn = () => {
 
   useEffect(() => {
     if (user) {
-      router.replace("/account");
+      router.replace("/me");
     }
   }, [user]);
 
@@ -113,22 +114,19 @@ const SignIn = () => {
                 />
                 <Input
                   label={"Password"}
-                  className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
                   type="password"
                   placeholder="Password"
                   value={password}
                   onChange={setPassword}
                   required
                 />
-                <button
-                  className="mt-1 rounded p-2 bg-indigo-500 text-white cursor-pointer"
-                  // variant="slim"
+                <Button
                   type="submit"
-                  // loading={loading}
+                  loading={loading}
+                  label="Sign in"
+                  loadingText="Signing in..."
                   disabled={!password.length || !email.length}
-                >
-                  Sign in
-                </button>
+                />
               </form>
             )}
 
