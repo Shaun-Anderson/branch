@@ -11,7 +11,7 @@ import Input from "../components/Input";
 const SignIn = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [showPasswordInput, setShowPasswordInput] = useState(false);
+  const [showPasswordInput, setShowPasswordInput] = useState(true);
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState<{ type?: string; content?: string }>({
     type: "",
@@ -21,6 +21,7 @@ const SignIn = () => {
   const { user } = useUser();
 
   const handleSignin = async (e: FormEvent<HTMLFormElement>) => {
+    console.log("SIGNING IN");
     e.preventDefault();
 
     setLoading(true);
@@ -60,7 +61,7 @@ const SignIn = () => {
 
   if (!user)
     return (
-      <div className="flex justify-center height-screen-helper">
+      <div className="flex justify-center height-screen-helper h-full">
         <div className="flex flex-col justify-between max-w-lg p-3 m-auto w-80 ">
           <div className="flex justify-center pb-12 ">
             {/* <Logo width="64px" height="64px" /> */}
@@ -70,10 +71,8 @@ const SignIn = () => {
               <div
                 className={`${
                   message.type === "error" ? "text-pink-500" : "text-green-500"
-                } border ${
-                  message.type === "error"
-                    ? "border-pink-500"
-                    : "border-green-500"
+                } rounded text-sm ${
+                  message.type === "error" ? "bg-pink-100" : "bg-green-100"
                 } p-3`}
               >
                 {message.content}
@@ -83,6 +82,7 @@ const SignIn = () => {
             {!showPasswordInput && (
               <form onSubmit={handleSignin} className="flex flex-col space-y-4">
                 <Input
+                  label={"Email"}
                   type="email"
                   placeholder="Email"
                   value={email}
@@ -104,6 +104,7 @@ const SignIn = () => {
             {showPasswordInput && (
               <form onSubmit={handleSignin} className="flex flex-col space-y-4">
                 <Input
+                  label={"Email"}
                   type="email"
                   placeholder="Email"
                   value={email}
@@ -111,6 +112,7 @@ const SignIn = () => {
                   required
                 />
                 <Input
+                  label={"Password"}
                   className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
                   type="password"
                   placeholder="Password"

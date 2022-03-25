@@ -1,14 +1,13 @@
-import { ChangeEvent } from "react";
+import React from "react";
+import { useController, UseControllerProps } from "react-hook-form";
 
-interface InputProps {
-  value?: string | number | readonly string[] | undefined;
+interface FormInputProps extends UseControllerProps<T> {
   label: string;
   placeholder?: string;
-  type?: React.HTMLInputTypeAttribute | undefined;
-  onChange: (data: any) => void;
-  required?: boolean;
+  type: React.HTMLInputTypeAttribute | undefined;
 }
-const Input = (props: InputProps) => {
+const FormInput = (props: FormInputProps) => {
+  const { field, fieldState } = useController(props);
   return (
     <div className="mb-2">
       <label className="block text-sm font-medium text-gray-700">
@@ -16,18 +15,15 @@ const Input = (props: InputProps) => {
       </label>
       <div className="mt-1 relative rounded-md shadow-sm">
         <input
-          value={props.value}
-          onChange={(event: ChangeEvent<HTMLInputElement>) =>
-            props.onChange(event.target.value)
-          }
-          required={props.required}
           type={props.type}
+          {...field}
           placeholder={props.placeholder}
           className="focus:ring-indigo-500 focus:border-indigo-500 block w-full px-4 py-2 sm:text-sm border border-gray-300 rounded-md"
         />
+        {fieldState.error && <p>{fieldState.error.message}</p>}
       </div>
     </div>
   );
 };
 
-export default Input;
+export default FormInput;
