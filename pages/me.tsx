@@ -87,29 +87,31 @@ const Me: NextPage = ({ user, data }: { user: User; data: Link[] }) => {
     if (!result.destination) {
       return;
     }
-
+    // instance old links for use in error later
+    const oldLinks = links;
+    // reorder links
     const items: Link[] = reorder(
       links,
       result.source.index,
       result.destination.index
     );
-
+    // map new items to ensure order is correct
     const newItems = items.map((item: Link, index: number) => {
       const updated = { ...item, order: index + 1 };
       return updated;
     });
-
-    console.log(items);
-    console.log(newItems);
-
+    // update local states as we assume it will update without issue
+    setLinks(items);
     // update order in supabase
     const { error } = await supabaseClient.from("links").upsert(
       newItems.map((item) => {
         return { id: item.id, order: item.order, user_id: item.user_id };
       })
     );
-
-    setLinks(items);
+    // on error reset to old positions
+    if (error) {
+      setLinks(oldLinks);
+    }
   };
 
   async function updateProfile({ username, avatar_url }) {
@@ -185,7 +187,7 @@ const Me: NextPage = ({ user, data }: { user: User; data: Link[] }) => {
               <div
                 {...provided.droppableProps}
                 ref={provided.innerRef}
-                style={{ width: "800px" }}
+                style={{ width: "100%", maxWidth: "800px" }}
                 // style={getListStyle(snapshot.isDraggingOver)}
               >
                 {links.map((item: Link, index: number) => (
