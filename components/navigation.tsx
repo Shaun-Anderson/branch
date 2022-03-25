@@ -6,6 +6,8 @@ import { useRouter } from "next/router";
 import { supabaseClient } from "@supabase/supabase-auth-helpers/nextjs";
 import { Menu, Transition } from "@headlessui/react";
 import { Fragment } from "react";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faArrowLeft, faUser } from "@fortawesome/free-solid-svg-icons";
 
 export const Navigation = () => {
   const { user, userDetails } = useUser();
@@ -61,6 +63,11 @@ export const Navigation = () => {
                                   : "text-gray-900"
                               } group flex rounded-md items-center w-full px-2 py-2 text-sm`}
                             >
+                              <FontAwesomeIcon
+                                icon={faUser}
+                                className="w-3 h-3 mr-3"
+                                aria-hidden="true"
+                              />
                               Edit Profile
                             </button>
                           )}
@@ -75,6 +82,11 @@ export const Navigation = () => {
                                   : "text-gray-900"
                               } group flex rounded-md items-center w-full px-2 py-2 text-sm`}
                             >
+                              <FontAwesomeIcon
+                                icon={faArrowLeft}
+                                className="w-3 h-3 mr-3"
+                                aria-hidden="true"
+                              />
                               Logout
                             </a>
                           )}
