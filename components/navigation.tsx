@@ -4,6 +4,8 @@ import Image from "next/image";
 import { useUser } from "../utils/useUser";
 import { useRouter } from "next/router";
 import { supabaseClient } from "@supabase/supabase-auth-helpers/nextjs";
+import { Menu, Transition } from "@headlessui/react";
+import { Fragment } from "react";
 
 export const Navigation = () => {
   const { user, userDetails } = useUser();
@@ -26,26 +28,61 @@ export const Navigation = () => {
           <div className="flex flex-1 justify-end space-x-8">
             {user ? (
               <>
-                {/* <img
-                  src={userDetails?.avatar_url}
-                  alt="Picture of the author"
-                  className="rounded-full"
-                  width={32}
-                  height={32}
-                />{" "} */}
-                <Image
-                  loader={myLoader}
-                  src="me.png"
-                  alt="Profile picture"
-                  className="rounded-full"
-                  width={32}
-                  height={32}
-                />
-                <Link href="/api/auth/logout">
-                  <a className="inline-flex items-center leading-6 font-medium transition ease-in-out duration-75 cursor-pointer text-zinc-200 rounded-md p-">
-                    Sign out
-                  </a>
-                </Link>
+                <Menu as="div" className="relative inline-block text-left">
+                  <div>
+                    <Menu.Button className="inline-flex rounded-full justify-center w-full px-1 py-1 text-sm font-medium text-white bg-black bg-opacity-20 hover:scale-105 hover:bg-opacity-30 focus:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-opacity-75">
+                      <Image
+                        loader={myLoader}
+                        src="me.png"
+                        alt="Profile picture"
+                        className="rounded-full  border-2 border-black border-solid"
+                        width={32}
+                        height={32}
+                      />
+                    </Menu.Button>
+                  </div>
+                  <Transition
+                    as={Fragment}
+                    enter="transition ease-out duration-100"
+                    enterFrom="transform opacity-0 scale-95"
+                    enterTo="transform opacity-100 scale-100"
+                    leave="transition ease-in duration-75"
+                    leaveFrom="transform opacity-100 scale-100"
+                    leaveTo="transform opacity-0 scale-95"
+                  >
+                    <Menu.Items className="absolute right-0 w-56 mt-2 origin-top-right bg-white divide-y divide-gray-100 rounded-md shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none">
+                      <div className="px-1 py-1 ">
+                        <Menu.Item>
+                          {({ active }) => (
+                            <button
+                              className={`${
+                                active
+                                  ? "bg-violet-500 text-white"
+                                  : "text-gray-900"
+                              } group flex rounded-md items-center w-full px-2 py-2 text-sm`}
+                            >
+                              Edit Profile
+                            </button>
+                          )}
+                        </Menu.Item>
+                        <Menu.Item>
+                          {({ active }) => (
+                            <a
+                              href="/api/auth/logout"
+                              className={`${
+                                active
+                                  ? "bg-violet-500 text-white"
+                                  : "text-gray-900"
+                              } group flex rounded-md items-center w-full px-2 py-2 text-sm`}
+                            >
+                              Logout
+                            </a>
+                          )}
+                        </Menu.Item>
+                      </div>
+                    </Menu.Items>
+                  </Transition>
+                </Menu>
               </>
             ) : (
               <Link href="/signin">
