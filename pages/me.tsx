@@ -23,16 +23,27 @@ import { useUser } from "../utils/useUser";
 import Avatar from "../components/Avatar";
 import { AddForm } from "../components/AddForm";
 import { Link } from "../types/Link";
+import { UserDetails } from "../types/UserDetails";
 
 export const _getServerSideProps: GetServerSideProps = async ({ req }) => {
   resetServerContext();
   const { user, token } = await supabaseClient.auth.api.getUserByCookie(req);
   supabaseClient.auth.setAuth(token);
-  var { data, error } = await supabaseClient
+  // links
+  const getLinks = supabaseClient
     .from<Link>("links")
     .select("*")
     .order("order");
-  return { props: { data: data } };
+  // user details
+  const getUserDetails = supabaseClient
+    .from<UserDetails>("profiles")
+    .select("*")
+    .eq("id", user?.id)
+    .single();
+
+  let [r1, r2] = await Promise.all([getUserDetails, getLinks]);
+
+  return { props: { userDetails: r1.data, data: r2.data } };
 };
 
 export const getServerSideProps = withAuthRequired({
@@ -52,13 +63,21 @@ const reorder = (
   return result;
 };
 
-const Me: NextPage = ({ user, data }: { user: User; data: Link[] }) => {
+const Me: NextPage = ({
+  user,
+  userDetails,
+  data,
+}: {
+  user: User;
+  userDetails: UserDetails;
+  data: Link[];
+}) => {
   const [isOpen, setIsOpen] = useState(false);
   const [addOpen, setAddOpen] = useState(false);
-  const { isLoading, userDetails } = useUser();
-  const [avatar_url, setAvatarUrl] = useState(userDetails?.avatar_url);
+  // const { isLoading, userDetails } = useUser();
+  const [avatar_url, setAvatarUrl] = useState(userDetails.avatar_url);
   const [loading, setLoading] = useState(false);
-  const [username, setUsername] = useState(userDetails?.full_name);
+  const [username, setUsername] = useState(userDetails.username);
   const [links, setLinks] = useState<Link[]>(data);
   const myLoader = ({ src, width }) => {
     return `https://via.placeholder.com/${width}`;
