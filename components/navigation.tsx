@@ -30,14 +30,14 @@ export const Navigation = () => {
               <>
                 <Menu as="div" className="relative inline-block text-left">
                   <div>
-                    <Menu.Button className="inline-flex rounded-full justify-center w-full px-1 py-1 text-sm font-medium text-white bg-black bg-opacity-20 hover:scale-105 hover:bg-opacity-30 focus:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-opacity-75">
+                    <Menu.Button className="inline-flex transition-all ease-in-out rounded-full justify-center w-full px-1 py-1 text-sm font-medium text-white bg-black bg-opacity-20 hover:scale-105 hover:bg-opacity-30 focus:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-opacity-75">
                       <Image
                         loader={myLoader}
                         src="me.png"
                         alt="Profile picture"
-                        className="rounded-full  border-2 border-black border-solid"
-                        width={32}
-                        height={32}
+                        className="rounded-full  border-2 border-black border-solid object-cover"
+                        width={38}
+                        height={38}
                       />
                     </Menu.Button>
                   </div>
