@@ -161,123 +161,120 @@ const Me: NextPage = ({
   }
 
   return (
-    <div className={styles.container}>
-      <Head>
-        <title>My Profile</title>
-        <meta name="description" content="Customise you branches" />
-        <link rel="icon" href="/favicon.ico" />
-      </Head>
+    <>
+      {" "}
       <Navigation />
-      <main className={styles.main}>
-        <Avatar
-          url={avatar_url}
-          size={100}
-          onUpload={(url) => {
-            setAvatarUrl(url);
-            updateProfile({ username, avatar_url: url });
-          }}
-        />
-        <h1 className="text-3xl font-bold mt-5">
-          <input
-            value={`@${userDetails?.username}`}
-            onChange={(event) => setUsername(event.target.value)}
-          ></input>
-        </h1>
-
-        <p
-          style={{ width: "500px" }}
-          className="text my-2 p-5 rounded-lg text-gray-500 text-center"
-        >
-          {userDetails?.bio}
-        </p>
-
-        <div className=" min-w-0 sm: w-96 max-w-lg">
-          <button
-            onClick={() => setAddOpen(true)}
-            className=" transition my-2 ease-in-out rounded-sm bg-teal-50 p-2 w-full text-teal-500 hover:bg-teal-100"
-          >
-            New link
-          </button>
-        </div>
-
-        <DragDropContext onDragEnd={onDragEnd}>
-          <Droppable droppableId="droppable">
-            {(provided, snapshot): JSX.Element => (
-              <div
-                {...provided.droppableProps}
-                ref={provided.innerRef}
-                style={{ width: "100%", maxWidth: "800px" }}
-                // style={getListStyle(snapshot.isDraggingOver)}
-              >
-                {links.map((item: Link, index: number) => (
-                  <Draggable
-                    key={item.id}
-                    draggableId={item.id as string}
-                    index={index}
-                  >
-                    {(provided, snapshot): JSX.Element => (
-                      <div
-                        ref={provided.innerRef}
-                        {...provided.draggableProps}
-                        className="flex"
-                      >
-                        <div
-                          {...provided.dragHandleProps}
-                          className="flex items-center justify-center mr-5"
-                        >
-                          <FontAwesomeIcon
-                            className="w-3 h-3 text-black text-opacity-20"
-                            icon={faGripVertical}
-                          />
-                        </div>
-                        <a
-                          href={item.url}
-                          className="transition ease-in-out my-1 flex-grow max-w-full p-3 bg-stone-50  rounded-l-md flex items-center"
-                        >
-                          <div className="ml-5">
-                            <h2 className="text-md">{item.title}</h2>
-                          </div>
-                        </a>
-                        <div className="align-center my-1 flex">
-                          <button
-                            className=" h-full w-16 flex justify-center items-center p-2 self-center bg-amber-50 hover:bg-amber-100"
-                            onClick={() => setIsOpen(true)}
-                          >
-                            <FontAwesomeIcon
-                              className="w-4 h-4 text-amber-500"
-                              icon={faEdit}
-                            />
-                          </button>
-                          <button className=" h-full w-16 p-2 flex justify-center items-center self-center rounded-r-md  bg-red-50 hover:bg-red-100">
-                            <FontAwesomeIcon
-                              className="w-4 h-4 text-red-500"
-                              icon={faTrashAlt}
-                            />
-                          </button>
-                        </div>
-                      </div>
-                    )}
-                  </Draggable>
-                ))}
-                {provided.placeholder}
-              </div>
-            )}
-          </Droppable>
-        </DragDropContext>
-        <Drawer isOpen={isOpen} setIsOpen={setIsOpen} title="Edit link">
-          hi there
-        </Drawer>
-        <Drawer isOpen={addOpen} setIsOpen={setAddOpen} title="Add link">
-          <AddForm
-            user={user}
-            onSubmit={() => {
-              fetchLinks();
-              setAddOpen(false);
+      <div className={styles.container}>
+        <Head>
+          <title>My Profile</title>
+          <meta name="description" content="Customise you branches" />
+          <link rel="icon" href="/favicon.ico" />
+        </Head>
+        <main className={styles.main}>
+          <Avatar
+            url={avatar_url}
+            size={100}
+            onUpload={(url) => {
+              setAvatarUrl(url);
+              updateProfile({ username, avatar_url: url });
             }}
           />
-        </Drawer>
-      </main>
-    </div>
+          <h1 className="text-3xl font-bold mt-5">@{userDetails?.username}</h1>
+          <textarea
+            placeholder="Tell us about yourself"
+            className=" max-w-xl w-full text-sm bg-gray-50 my-4 p-2 rounded-lg text-gray-500"
+          >
+            {userDetails?.bio}
+          </textarea>
+
+          <div className=" min-w-0 sm: w-96 max-w-lg">
+            <button
+              onClick={() => setAddOpen(true)}
+              className=" transition my-2 ease-in-out rounded-sm bg-teal-50 p-2 w-full text-teal-500 hover:bg-teal-100"
+            >
+              New link
+            </button>
+          </div>
+
+          <DragDropContext onDragEnd={onDragEnd}>
+            <Droppable droppableId="droppable">
+              {(provided, snapshot): JSX.Element => (
+                <div
+                  {...provided.droppableProps}
+                  ref={provided.innerRef}
+                  style={{ width: "100%", maxWidth: "800px" }}
+                  // style={getListStyle(snapshot.isDraggingOver)}
+                >
+                  {links.map((item: Link, index: number) => (
+                    <Draggable
+                      key={item.id}
+                      draggableId={item.id as string}
+                      index={index}
+                    >
+                      {(provided, snapshot): JSX.Element => (
+                        <div
+                          ref={provided.innerRef}
+                          {...provided.draggableProps}
+                          className="flex"
+                        >
+                          <div
+                            {...provided.dragHandleProps}
+                            className="flex items-center justify-center mr-5"
+                          >
+                            <FontAwesomeIcon
+                              className="w-3 h-3 text-black text-opacity-20"
+                              icon={faGripVertical}
+                            />
+                          </div>
+                          <a
+                            href={item.url}
+                            className="transition ease-in-out my-1 flex-grow max-w-full p-3 bg-stone-50  rounded-l-md flex items-center"
+                          >
+                            <div className="ml-5">
+                              <h2 className="text-md">{item.title}</h2>
+                            </div>
+                          </a>
+                          <div className="align-center my-1 flex">
+                            <button
+                              className=" h-full w-16 flex justify-center items-center p-2 self-center bg-amber-50 hover:bg-amber-100"
+                              onClick={() => setIsOpen(true)}
+                            >
+                              <FontAwesomeIcon
+                                className="w-4 h-4 text-amber-500"
+                                icon={faEdit}
+                              />
+                            </button>
+                            <button className=" h-full w-16 p-2 flex justify-center items-center self-center rounded-r-md  bg-red-50 hover:bg-red-100">
+                              <FontAwesomeIcon
+                                className="w-4 h-4 text-red-500"
+                                icon={faTrashAlt}
+                              />
+                            </button>
+                          </div>
+                        </div>
+                      )}
+                    </Draggable>
+                  ))}
+                  {provided.placeholder}
+                </div>
+              )}
+            </Droppable>
+          </DragDropContext>
+          <Drawer isOpen={isOpen} setIsOpen={setIsOpen} title="Edit link">
+            hi there
+          </Drawer>
+          <Drawer isOpen={addOpen} setIsOpen={setAddOpen} title="Add link">
+            <AddForm
+              user={user}
+              onSubmit={() => {
+                fetchLinks();
+                setAddOpen(false);
+              }}
+            />
+          </Drawer>
+        </main>
+      </div>
+    </>
   );
 };
 
