@@ -7,7 +7,6 @@ import { supabaseClient } from "@supabase/supabase-auth-helpers/nextjs";
 
 export const Navigation = () => {
   const { user, userDetails } = useUser();
-  console.log(userDetails);
   const myLoader = ({ src, width }) => {
     if (!userDetails) {
       return "https://via.placeholder.com/150";
@@ -15,11 +14,10 @@ export const Navigation = () => {
     const { publicURL, error } = supabaseClient.storage
       .from("avatars")
       .getPublicUrl(userDetails.avatar_url ?? "");
-    console.log(publicURL);
     return publicURL;
   };
   return (
-    <nav className="sticky top-0  z-10 transition-all duration-150">
+    <nav className="sticky backdrop-blur-sm bg-white/30 top-0  z-10 transition-all duration-150">
       <a href="#skip" className="sr-only focus:not-sr-only">
         Skip to content
       </a>
