@@ -8,17 +8,15 @@ import { supabaseClient } from "@supabase/supabase-auth-helpers/nextjs";
 export const Navigation = () => {
   const { user, userDetails } = useUser();
   console.log(userDetails);
-  const router = useRouter();
   const myLoader = ({ src, width }) => {
     if (!userDetails) {
       return "https://via.placeholder.com/150";
     }
     const { publicURL, error } = supabaseClient.storage
-      .from("avatar")
-      .getPublicUrl(
-        userDetails.avatar_url ?? "https://via.placeholder.com/150"
-      );
-    return userDetails.avatar_url;
+      .from("avatars")
+      .getPublicUrl(userDetails.avatar_url ?? "");
+    console.log(publicURL);
+    return publicURL;
   };
   return (
     <nav className="sticky top-0  z-10 transition-all duration-150">
@@ -30,13 +28,21 @@ export const Navigation = () => {
           <div className="flex flex-1 justify-end space-x-8">
             {user ? (
               <>
-                <img
+                {/* <img
                   src={userDetails?.avatar_url}
                   alt="Picture of the author"
                   className="rounded-full"
                   width={32}
                   height={32}
-                />{" "}
+                />{" "} */}
+                <Image
+                  loader={myLoader}
+                  src="me.png"
+                  alt="Profile picture"
+                  className="rounded-full"
+                  width={32}
+                  height={32}
+                />
                 <Link href="/api/auth/logout">
                   <a className="inline-flex items-center leading-6 font-medium transition ease-in-out duration-75 cursor-pointer text-zinc-200 rounded-md p-">
                     Sign out
