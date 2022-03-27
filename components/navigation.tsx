@@ -56,7 +56,8 @@ export const Navigation = () => {
                       <div className="px-1 py-1 ">
                         <Menu.Item>
                           {({ active }) => (
-                            <button
+                            <a
+                              href="/me"
                               className={`${
                                 active
                                   ? "bg-violet-500 text-white"
@@ -69,7 +70,7 @@ export const Navigation = () => {
                                 aria-hidden="true"
                               />
                               Edit Profile
-                            </button>
+                            </a>
                           )}
                         </Menu.Item>
                         <Menu.Item>
