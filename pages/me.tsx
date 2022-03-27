@@ -20,7 +20,7 @@ import {
   withAuthRequired,
 } from "@supabase/supabase-auth-helpers/nextjs";
 import { useUser } from "../utils/useUser";
-import Avatar from "../components/Avatar";
+import Avatar from "../components/avatar/Avatar";
 import { AddForm } from "../components/AddForm";
 import { Link } from "../types/Link";
 import { UserDetails } from "../types/UserDetails";
@@ -162,7 +162,6 @@ const Me: NextPage = ({
 
   return (
     <>
-      {" "}
       <Navigation />
       <div className={styles.container}>
         <Head>
