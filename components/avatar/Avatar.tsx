@@ -37,14 +37,25 @@ export default function Avatar({ url, size, onUpload }) {
       const fileName = `${Math.random()}.${fileExt}`;
       const filePath = `${fileName}`;
 
-      let { error: uploadError } = await supabaseClient.storage
-        .from("avatars")
-        .upload(filePath, file);
+      if (avatarUrl) {
+        let { error: updateError } = await supabaseClient.storage
+          .from("avatars")
+          .update(url, file);
 
-      if (uploadError) {
-        throw uploadError;
+        if (updateError) {
+          throw updateError;
+        }
+        console.log("Update Successful");
+      } else {
+        let { error: uploadError } = await supabaseClient.storage
+          .from("avatars")
+          .upload(filePath, file);
+
+        if (uploadError) {
+          throw uploadError;
+        }
+        console.log("Upload successful");
       }
-
       onUpload(filePath);
     } catch (error) {
       alert(error.message);
