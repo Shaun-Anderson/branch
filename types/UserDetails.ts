@@ -3,4 +3,5 @@ export interface UserDetails {
   username: string;
   avatar_url?: string;
   bio: string;
+  colorScheme: number;
 }
