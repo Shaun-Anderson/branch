@@ -37,10 +37,7 @@ export const AddForm = ({
     }
   };
   return (
-    <form
-      onSubmit={handleSubmit(submit, (errors) => console.log(errors))}
-      className="px-5"
-    >
+    <form onSubmit={handleSubmit(submit, (errors) => console.log(errors))}>
       <FormInput label="Title" name="title" control={control} />
       <FormInput label="Url" name="url" control={control} />
       <input
