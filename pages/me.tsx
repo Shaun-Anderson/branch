@@ -11,8 +11,8 @@ import {
   faGripVertical,
   faEdit,
   faTrashAlt,
+  faCog,
 } from "@fortawesome/free-solid-svg-icons";
-import { Drawer } from "../components/drawer";
 import { Navigation } from "../components/navigation";
 import {
   supabaseClient,
@@ -22,6 +22,7 @@ import {
 import { useUser } from "../utils/useUser";
 import Avatar from "../components/avatar/Avatar";
 import { AddForm } from "../components/AddForm";
+import Drawer from "../components/drawer/Drawer";
 import { Link } from "../types/Link";
 import { UserDetails } from "../types/UserDetails";
 
@@ -74,6 +75,7 @@ const Me: NextPage = ({
 }) => {
   const [isOpen, setIsOpen] = useState(false);
   const [addOpen, setAddOpen] = useState(false);
+  const [isNewOpen, setIsNewOpen] = useState(false);
   // const { isLoading, userDetails } = useUser();
   const [avatar_url, setAvatarUrl] = useState(userDetails.avatar_url);
   const [loading, setLoading] = useState(false);
@@ -186,12 +188,18 @@ const Me: NextPage = ({
             {userDetails?.bio}
           </textarea>
 
-          <div className=" min-w-0 sm: w-96 max-w-lg">
+          <div className=" min-w-0 sm: w-96 max-w-lg flex">
             <button
               onClick={() => setAddOpen(true)}
-              className=" transition my-2 ease-in-out rounded-sm bg-teal-50 p-2 w-full text-teal-500 hover:bg-teal-100"
+              className=" transition grow my-2 ease-in-out rounded-sm bg-teal-50 p-2 w-full text-teal-500 hover:bg-teal-100"
             >
               New link
+            </button>
+            <button
+              onClick={() => setIsNewOpen(true)}
+              className=" transition grow-0 my-2 ease-in-out rounded-sm bg-teal-50 p-2 w-full text-teal-500 hover:bg-teal-100"
+            >
+              <FontAwesomeIcon icon={faCog} width={28} />
             </button>
           </div>
 
@@ -262,7 +270,13 @@ const Me: NextPage = ({
           <Drawer isOpen={isOpen} setIsOpen={setIsOpen} title="Edit link">
             hi there
           </Drawer>
-          <Drawer isOpen={addOpen} setIsOpen={setAddOpen} title="Add link">
+          {/* Add Drawer */}
+          <Drawer
+            isOpen={addOpen}
+            setIsOpen={setAddOpen}
+            title="Add link"
+            description="Add a new link"
+          >
             <AddForm
               user={user}
               onSubmit={() => {
@@ -270,6 +284,15 @@ const Me: NextPage = ({
                 setAddOpen(false);
               }}
             />
+          </Drawer>
+          {/* Option Drawer */}
+          <Drawer
+            isOpen={isNewOpen}
+            setIsOpen={setIsNewOpen}
+            title="Options"
+            description="Try something new!"
+          >
+            <p>Options</p>
           </Drawer>
         </main>
       </div>
