@@ -18,10 +18,14 @@ const FormInput = (props: FormInputProps) => {
           type={props.type}
           {...field}
           placeholder={props.placeholder}
-          className="focus:ring-indigo-500 focus:border-indigo-500 block w-full px-4 py-2 sm:text-sm border border-gray-300 rounded-md"
+          className={`focus:ring-indigo-500 focus:border-indigo-500 block w-full px-4 py-2 sm:text-sm border ${
+            fieldState.error ? "border-red-300" : "border-gray-300"
+          } rounded-md`}
         />
-        {fieldState.error && <p>{fieldState.error.message}</p>}
       </div>
+      {fieldState.error && (
+        <p className="my-1 text-red-400 text-sm">{fieldState.error.message}</p>
+      )}
     </div>
   );
 };
