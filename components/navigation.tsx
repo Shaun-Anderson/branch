@@ -32,7 +32,7 @@ export const Navigation = () => {
               <>
                 <Menu as="div" className="relative inline-block text-left">
                   <div>
-                    <Menu.Button className="inline-flex transition-all ease-in-out rounded-full justify-center w-full px-1 py-1 text-sm font-medium text-white bg-black bg-opacity-20 hover:scale-105 hover:bg-opacity-30 focus:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-opacity-75">
+                    <Menu.Button className="inline-flex transition-all ease-in-out rounded-full justify-center w-full text-sm font-medium text-white bg-black bg-opacity-20 hover:scale-105 hover:bg-opacity-30 focus:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-opacity-75">
                       <Image
                         loader={myLoader}
                         src="me.png"
