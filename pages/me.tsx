@@ -16,7 +16,7 @@ import { AddForm } from "../components/AddForm";
 import Drawer from "../components/drawer/Drawer";
 import { Link } from "../types/Link";
 import { UserDetails } from "../types/UserDetails";
-import { colorScheme } from "../utils/colorSchemes";
+import { colorScheme as colorSchemeEnum } from "../utils/colorSchemes";
 import Listbox from "../components/listbox/Listbox";
 import {
   CogIcon,
@@ -76,7 +76,7 @@ const Me: NextPage = ({
   const [isOpen, setIsOpen] = useState(false);
   const [addOpen, setAddOpen] = useState(false);
   const [isNewOpen, setIsNewOpen] = useState(false);
-  const [selected, setSelected] = useState(userDetails.colorScheme);
+  const [colorScheme, setColorScheme] = useState(userDetails.colorScheme);
   const [avatar_url, setAvatarUrl] = useState(userDetails.avatar_url);
   const [loading, setLoading] = useState(false);
   const [username, setUsername] = useState(userDetails.username);
@@ -84,7 +84,7 @@ const Me: NextPage = ({
   const myLoader = ({ src, width }) => {
     return `https://via.placeholder.com/${width}`;
   };
-
+  console.log(userDetails.colorScheme);
   const fetchLinks = () => {
     supabaseClient
       .from<Link>("links")
@@ -134,7 +134,10 @@ const Me: NextPage = ({
       setLinks(oldLinks);
     }
   };
-
+  console.log({
+    value: colorScheme,
+    label: Object.keys(colorSchemeEnum)[colorScheme],
+  });
   async function updateProfile({ username, avatar_url }) {
     try {
       setLoading(true);
@@ -162,8 +165,31 @@ const Me: NextPage = ({
     }
   }
 
+  async function updateColorScheme(colorSchemeId: number) {
+    try {
+      setLoading(true);
+      const updates = {
+        id: user?.id,
+        colorScheme: colorSchemeId,
+        updated_at: new Date(),
+      };
+
+      let { error } = await supabaseClient.from("profiles").upsert(updates, {
+        returning: "minimal", // Don't return the value after inserting
+      });
+
+      if (error) {
+        throw error;
+      }
+    } catch (error) {
+      //alert(error.message)
+    } finally {
+      setLoading(false);
+    }
+  }
+
   return (
-    <div className={Object.values(colorScheme)[selected]}>
+    <div className={`${Object.values(colorSchemeEnum)[colorScheme]}`}>
       <Navigation />
       <div className={styles.container}>
         <Head>
@@ -228,7 +254,7 @@ const Me: NextPage = ({
                             className="flex items-center justify-center mr-5"
                           >
                             <SelectorIcon
-                              className="w-5 h-5 text-gray-400"
+                              className="w-5 h-5 text-black-900 opacity-50"
                               aria-hidden="true"
                             />
                           </div>
@@ -293,9 +319,17 @@ const Me: NextPage = ({
           >
             <p>Options</p>
             <Listbox
-              onChange={console.log("tetst")}
+              value={{
+                value: colorScheme,
+                label: Object.keys(colorSchemeEnum)[colorScheme],
+              }}
+              onChange={async (data) => {
+                console.log("ON CHANGE: " + data.value);
+                setColorScheme(data.value as number);
+                updateColorScheme(data.value as number);
+              }}
               items={[
-                { value: 1, label: "default" },
+                { value: 1, label: "Default" },
                 { value: 2, label: "Sky" },
                 { value: 3, label: "Fire" },
               ]}
