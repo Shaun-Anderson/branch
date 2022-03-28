@@ -12,7 +12,7 @@ import {
   withAuthRequired,
 } from "@supabase/supabase-auth-helpers/nextjs";
 import Avatar from "../components/avatar/Avatar";
-import { AddForm } from "../components/AddForm";
+import { AddForm, LinkForm } from "../components/LinkForm";
 import Drawer from "../components/drawer/Drawer";
 import { Link } from "../types/Link";
 import { UserDetails } from "../types/UserDetails";
@@ -21,6 +21,7 @@ import Listbox from "../components/listbox/Listbox";
 import {
   CogIcon,
   PencilAltIcon,
+  PlusIcon,
   SelectorIcon,
   TrashIcon,
   UserCircleIcon,
@@ -76,6 +77,7 @@ const Me: NextPage = ({
   const [isOpen, setIsOpen] = useState(false);
   const [addOpen, setAddOpen] = useState(false);
   const [isNewOpen, setIsNewOpen] = useState(false);
+  const [selectedLink, setSelectedLink] = useState<Link | undefined>(undefined);
   const [colorScheme, setColorScheme] = useState(userDetails.colorScheme);
   const [avatar_url, setAvatarUrl] = useState(userDetails.avatar_url);
   const [loading, setLoading] = useState(false);
@@ -213,18 +215,19 @@ const Me: NextPage = ({
             className=" max-w-xl w-full text-sm bg-gray-50 my-4 p-2 rounded-lg text-gray-500"
           />
 
-          <div className=" min-w-0 sm: w-96 max-w-lg flex">
+          <div className=" w-full justify-center flex space-x-1">
             <button
               onClick={() => setAddOpen(true)}
-              className=" transition grow my-2 ease-in-out rounded-sm bg-teal-50 p-2 w-full text-teal-500 hover:bg-teal-100"
+              className=" transition flex items-center  text-bold my-2 ease-in-out rounded bg-teal-50 p-2  text-teal-500 hover:bg-teal-100"
             >
+              <PlusIcon className="w-5 h-5 sm:w-4 sm:h-4 " aria-hidden="true" />
               New link
             </button>
             <button
               onClick={() => setIsNewOpen(true)}
-              className=" transition grow-0 my-2 ease-in-out rounded-sm bg-teal-50 p-2 w-full text-teal-500 hover:bg-teal-100"
+              className=" transition my-2 ease-in-out rounded bg-indigo-50 p-2  text-indigo-500 hover:bg-indigo-100"
             >
-              <CogIcon className="w-5 h-5 text-teal-400" aria-hidden="true" />
+              <CogIcon className="w-5 h-5 sm:w-4 sm:h-4 " aria-hidden="true" />
             </button>
           </div>
 
@@ -247,7 +250,7 @@ const Me: NextPage = ({
                         <div
                           ref={provided.innerRef}
                           {...provided.draggableProps}
-                          className="flex"
+                          className="flex space-x-1"
                         >
                           <div
                             {...provided.dragHandleProps}
@@ -260,25 +263,26 @@ const Me: NextPage = ({
                           </div>
                           <a
                             href={item.url}
-                            className="transition ease-in-out my-1 flex-grow max-w-full p-3 bg-stone-50  rounded-l-md flex items-center"
+                            className="transition justify-center ease-in-out my-1 flex-grow max-w-full p-3 bg-stone-50  rounded flex items-center"
                           >
-                            <div className="ml-5">
-                              <h2 className="text-md">{item.title}</h2>
-                            </div>
+                            <h2 className="text-md">{item.title}</h2>
                           </a>
-                          <div className="align-center my-1 flex">
+                          <div className="align-center my-1 flex space-x-1">
                             <button
-                              className=" h-full w-16 flex justify-center items-center p-2 self-center bg-amber-50 hover:bg-amber-100"
-                              onClick={() => setIsOpen(true)}
+                              className=" flex justify-center items-center p-2 self-center rounded-md bg-amber-50 hover:bg-amber-100"
+                              onClick={() => {
+                                setSelectedLink(item);
+                                setIsOpen(true);
+                              }}
                             >
                               <PencilAltIcon
-                                className="w-5 h-5 text-amber-400"
+                                className="w-5 h-5 sm:w-4 sm:h-4  text-amber-400"
                                 aria-hidden="true"
                               />
                             </button>
-                            <button className=" h-full w-16 p-2 flex justify-center items-center self-center rounded-r-md  bg-red-50 hover:bg-red-100">
+                            <button className="  p-2 flex justify-center items-center self-center rounded-md  bg-red-50 hover:bg-red-100">
                               <TrashIcon
-                                className="w-5 h-5 text-red-400"
+                                className="w-5 h-5 sm:w-4 sm:h-4 text-red-400"
                                 aria-hidden="true"
                               />
                             </button>
@@ -293,7 +297,14 @@ const Me: NextPage = ({
             </Droppable>
           </DragDropContext>
           <Drawer isOpen={isOpen} setIsOpen={setIsOpen} title="Edit link">
-            hi there
+            <LinkForm
+              user={user}
+              data={selectedLink}
+              onSubmit={() => {
+                fetchLinks();
+                setAddOpen(false);
+              }}
+            />
           </Drawer>
           {/* Add Drawer */}
           <Drawer
@@ -302,7 +313,7 @@ const Me: NextPage = ({
             title="Add link"
             description="Add a new link"
           >
-            <AddForm
+            <LinkForm
               user={user}
               onSubmit={() => {
                 fetchLinks();

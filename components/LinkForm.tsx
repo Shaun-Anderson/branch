@@ -7,11 +7,13 @@ import { Link } from "../types/Link";
 import { useUser } from "../utils/useUser";
 import FormInput from "./FormInput";
 
-export const AddForm = ({
+export const LinkForm = ({
   user,
+  data,
   onSubmit,
 }: {
   user: User;
+  data?: Link | undefined;
   onSubmit: () => void;
 }) => {
   const schema = yup
@@ -26,8 +28,9 @@ export const AddForm = ({
     watch,
     control,
     formState: { errors },
-  } = useForm<{ id: number; title: string; url: number }>({
+  } = useForm<Link>({
     resolver: yupResolver(schema),
+    defaultValues: data,
   });
   const submit = async (data: any) => {
     data.user_id = user.id;
@@ -38,8 +41,8 @@ export const AddForm = ({
   };
   return (
     <form onSubmit={handleSubmit(submit, (errors) => console.log(errors))}>
-      <FormInput label="Title" name="title" control={control} />
-      <FormInput label="Url" name="url" control={control} />
+      <FormInput type="text" label="Title" name="title" control={control} />
+      <FormInput type="text" label="Url" name="url" control={control} />
       <input
         type="submit"
         className="transition cursor-pointer my-2 ease-in-out rounded-sm bg-indigo-50 p-2 w-full text-indigo-500 hover:bg-indigo-100"
