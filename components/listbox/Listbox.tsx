@@ -8,20 +8,23 @@ interface ListboxItem {
 }
 
 interface ListboxProps {
+  value: ListboxItem;
   items: ListboxItem[];
-  onChange: Dispatch<
-    SetStateAction<{
-      name: string;
-    }>
-  >;
+  onChange: (data: ListboxItem) => {};
 }
 
-export default function Listbox({ items, onChange }: ListboxProps) {
-  const [selected, setSelected] = useState(items[0]);
+export default function Listbox({ value, items, onChange }: ListboxProps) {
+  const [selected, setSelected] = useState(value);
 
   return (
-    <div className="w-72 fixed top-16">
-      <BaseListbox value={selected} onChange={setSelected}>
+    <div className="w-full">
+      <BaseListbox
+        value={selected}
+        onChange={(data: ListboxItem) => {
+          setSelected(data);
+          onChange(data);
+        }}
+      >
         <div className="relative mt-1">
           <BaseListbox.Button className="relative w-full py-2 pl-3 pr-10 text-left bg-white rounded-lg shadow-md cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-opacity-75 focus-visible:ring-white focus-visible:ring-offset-orange-300 focus-visible:ring-offset-2 focus-visible:border-indigo-500 sm:text-sm">
             <span className="block truncate">{selected.label}</span>
@@ -47,7 +50,7 @@ export default function Listbox({ items, onChange }: ListboxProps) {
                       active ? "text-amber-900 bg-amber-100" : "text-gray-900"
                     }`
                   }
-                  value={item.value}
+                  value={item}
                 >
                   {({ selected }) => (
                     <>
