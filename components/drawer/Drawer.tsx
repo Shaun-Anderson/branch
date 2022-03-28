@@ -60,7 +60,7 @@ export default function Drawer({
                     onClick={() => setIsOpen(!isOpen)}
                     className="inline-flex ml-auto items-center justify-center px-4 py-2 font-semibold leading-6 text-sm rounded-md text-gray-900 bg-gray-100 hover:bg-gray-200 transition ease-in-out duration-150 cursor-pointer disabled:cursor-not-allowed disabled:text-gray-300 disabled:bg-gray-50"
                   >
-                    <XIcon className="w-5 h-5 " />
+                    <XIcon className="w-4 h-4" />
                   </button>
                 </Dialog.Title>
                 <Dialog.Description className="mt-3 mb-2 text-gray-500">
