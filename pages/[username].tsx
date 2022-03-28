@@ -58,7 +58,7 @@ const PublicProfile = ({
     return publicURL;
   };
   return (
-    <div className={Object.values(colorScheme)[0]}>
+    <div className={`${Object.values(colorScheme)[userDetails.colorScheme]}`}>
       <Navigation />
       <div className={styles.container}>
         <Head>
