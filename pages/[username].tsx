@@ -6,6 +6,9 @@ import Head from "next/head";
 import styles from "../styles/Home.module.css";
 import { Navigation } from "../components/navigation";
 import Image from "next/image";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faFacebook } from "@fortawesome/free-brands-svg-icons";
+import { colorScheme } from "../utils/colorSchemes";
 
 export const getServerSideProps: GetServerSideProps = async ({
   req,
@@ -20,6 +23,7 @@ export const getServerSideProps: GetServerSideProps = async ({
     .select("*")
     .eq("username", username)
     .single();
+  console.log(userDetails.data);
   if (!userDetails.data) {
     return {
       redirect: {
@@ -54,7 +58,7 @@ const PublicProfile = ({
     return publicURL;
   };
   return (
-    <>
+    <div className={Object.values(colorScheme)[0]}>
       <Navigation />
       <div className={styles.container}>
         <Head>
@@ -74,7 +78,7 @@ const PublicProfile = ({
             height={100}
           />
           <h1 className="text-3xl font-bold mt-5">@{userDetails?.username}</h1>
-          <p className=" max-w-xl w-full text-sm text-center my-4 p-2 rounded-lg text-gray-500">
+          <p className=" max-w-xl w-full text-sm text-center my-4 p-2 rounded-lg text-black opacity-50">
             {userDetails?.bio}
           </p>
           {data.map((item: Link, index: number) => (
@@ -82,8 +86,10 @@ const PublicProfile = ({
               <div className="flex">
                 <a
                   href={item.url}
-                  className="transition ease-in-out my-1 flex-grow max-w-full p-3 bg-stone-50  rounded-l-md flex items-center"
+                  className="transition ease-in-out my-1 flex-grow max-w-full p-3 bg-stone-50  rounded-md flex items-center"
                 >
+                  <FontAwesomeIcon icon={faFacebook} />
+
                   <div className="ml-5">
                     <h2 className="text-md">{item.title}</h2>
                   </div>
@@ -93,7 +99,7 @@ const PublicProfile = ({
           ))}
         </main>
       </div>
-    </>
+    </div>
   );
 };
 export default PublicProfile;

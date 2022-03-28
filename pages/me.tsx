@@ -5,26 +5,26 @@ import styles from "../styles/Home.module.css";
 import { DropResult, resetServerContext } from "react-beautiful-dnd";
 import { useEffect, useState } from "react";
 import { DragDropContext, Droppable, Draggable } from "../components/dnd";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import {
-  faGrip,
-  faGripVertical,
-  faEdit,
-  faTrashAlt,
-  faCog,
-} from "@fortawesome/free-solid-svg-icons";
 import { Navigation } from "../components/navigation";
 import {
   supabaseClient,
   User,
   withAuthRequired,
 } from "@supabase/supabase-auth-helpers/nextjs";
-import { useUser } from "../utils/useUser";
 import Avatar from "../components/avatar/Avatar";
 import { AddForm } from "../components/AddForm";
 import Drawer from "../components/drawer/Drawer";
 import { Link } from "../types/Link";
 import { UserDetails } from "../types/UserDetails";
+import { colorScheme } from "../utils/colorSchemes";
+import Listbox from "../components/listbox/Listbox";
+import {
+  CogIcon,
+  PencilAltIcon,
+  SelectorIcon,
+  TrashIcon,
+  UserCircleIcon,
+} from "@heroicons/react/solid";
 
 export const _getServerSideProps: GetServerSideProps = async ({ req }) => {
   resetServerContext();
@@ -76,7 +76,7 @@ const Me: NextPage = ({
   const [isOpen, setIsOpen] = useState(false);
   const [addOpen, setAddOpen] = useState(false);
   const [isNewOpen, setIsNewOpen] = useState(false);
-  // const { isLoading, userDetails } = useUser();
+  const [selected, setSelected] = useState(userDetails.colorScheme);
   const [avatar_url, setAvatarUrl] = useState(userDetails.avatar_url);
   const [loading, setLoading] = useState(false);
   const [username, setUsername] = useState(userDetails.username);
@@ -163,7 +163,7 @@ const Me: NextPage = ({
   }
 
   return (
-    <>
+    <div className={Object.values(colorScheme)[selected]}>
       <Navigation />
       <div className={styles.container}>
         <Head>
@@ -182,11 +182,10 @@ const Me: NextPage = ({
           />
           <h1 className="text-3xl font-bold mt-5">@{userDetails?.username}</h1>
           <textarea
+            defaultValue={userDetails?.bio}
             placeholder="Tell us about yourself"
             className=" max-w-xl w-full text-sm bg-gray-50 my-4 p-2 rounded-lg text-gray-500"
-          >
-            {userDetails?.bio}
-          </textarea>
+          />
 
           <div className=" min-w-0 sm: w-96 max-w-lg flex">
             <button
@@ -199,7 +198,7 @@ const Me: NextPage = ({
               onClick={() => setIsNewOpen(true)}
               className=" transition grow-0 my-2 ease-in-out rounded-sm bg-teal-50 p-2 w-full text-teal-500 hover:bg-teal-100"
             >
-              <FontAwesomeIcon icon={faCog} width={28} />
+              <CogIcon className="w-5 h-5 text-teal-400" aria-hidden="true" />
             </button>
           </div>
 
@@ -228,9 +227,9 @@ const Me: NextPage = ({
                             {...provided.dragHandleProps}
                             className="flex items-center justify-center mr-5"
                           >
-                            <FontAwesomeIcon
-                              className="w-3 h-3 text-black text-opacity-20"
-                              icon={faGripVertical}
+                            <SelectorIcon
+                              className="w-5 h-5 text-gray-400"
+                              aria-hidden="true"
                             />
                           </div>
                           <a
@@ -246,15 +245,15 @@ const Me: NextPage = ({
                               className=" h-full w-16 flex justify-center items-center p-2 self-center bg-amber-50 hover:bg-amber-100"
                               onClick={() => setIsOpen(true)}
                             >
-                              <FontAwesomeIcon
-                                className="w-4 h-4 text-amber-500"
-                                icon={faEdit}
+                              <PencilAltIcon
+                                className="w-5 h-5 text-amber-400"
+                                aria-hidden="true"
                               />
                             </button>
                             <button className=" h-full w-16 p-2 flex justify-center items-center self-center rounded-r-md  bg-red-50 hover:bg-red-100">
-                              <FontAwesomeIcon
-                                className="w-4 h-4 text-red-500"
-                                icon={faTrashAlt}
+                              <TrashIcon
+                                className="w-5 h-5 text-red-400"
+                                aria-hidden="true"
                               />
                             </button>
                           </div>
@@ -293,10 +292,18 @@ const Me: NextPage = ({
             description="Try something new!"
           >
             <p>Options</p>
+            <Listbox
+              onChange={console.log("tetst")}
+              items={[
+                { value: 1, label: "default" },
+                { value: 2, label: "Sky" },
+                { value: 3, label: "Fire" },
+              ]}
+            />
           </Drawer>
         </main>
       </div>
-    </>
+    </div>
   );
 };
 

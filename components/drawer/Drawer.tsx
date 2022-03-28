@@ -1,6 +1,5 @@
-import { faClose, faEdit } from "@fortawesome/free-solid-svg-icons";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { Dialog, Transition } from "@headlessui/react";
+import { XIcon } from "@heroicons/react/solid";
 import { Fragment } from "react";
 import Button from "../Button";
 
@@ -61,7 +60,7 @@ export default function Drawer({
                     onClick={() => setIsOpen(!isOpen)}
                     className="inline-flex ml-auto items-center justify-center px-4 py-2 font-semibold leading-6 text-sm rounded-md text-gray-900 bg-gray-100 hover:bg-gray-200 transition ease-in-out duration-150 cursor-pointer disabled:cursor-not-allowed disabled:text-gray-300 disabled:bg-gray-50"
                   >
-                    <FontAwesomeIcon icon={faClose} width={8} />
+                    <XIcon className="w-5 h-5 " />
                   </button>
                 </Dialog.Title>
                 <Dialog.Description className="mt-3 mb-2 text-gray-500">
