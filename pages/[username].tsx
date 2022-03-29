@@ -59,7 +59,6 @@ const PublicProfile = ({
   };
   return (
     <div className={`${Object.values(colorScheme)[userDetails.colorScheme]}`}>
-      <Navigation />
       <div className={styles.container}>
         <Head>
           <title>{userDetails.username}'s Links</title>
@@ -86,13 +85,9 @@ const PublicProfile = ({
               <div className="flex">
                 <a
                   href={item.url}
-                  className="transition ease-in-out my-1 flex-grow max-w-full p-3 bg-stone-50  rounded-md flex items-center"
+                  className="transition justify-center ease-in-out my-1 flex-grow max-w-full p-3 bg-stone-50  rounded-md flex items-center"
                 >
-                  <FontAwesomeIcon icon={faFacebook} />
-
-                  <div className="ml-5">
-                    <h2 className="text-md">{item.title}</h2>
-                  </div>
+                  <h2 className="text-md ">{item.title}</h2>
                 </a>
               </div>
             </div>
