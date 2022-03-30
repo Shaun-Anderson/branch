@@ -5,7 +5,6 @@ import styles from "../styles/Home.module.css";
 import { DropResult, resetServerContext } from "react-beautiful-dnd";
 import { useEffect, useState } from "react";
 import { DragDropContext, Droppable, Draggable } from "../components/dnd";
-import { Navigation } from "../components/navigation";
 import {
   supabaseClient,
   User,
@@ -26,6 +25,7 @@ import {
   TrashIcon,
   UserCircleIcon,
 } from "@heroicons/react/solid";
+import RadioGroup from "../components/RadioGroup";
 
 export const _getServerSideProps: GetServerSideProps = async ({ req }) => {
   resetServerContext();
@@ -44,7 +44,7 @@ export const _getServerSideProps: GetServerSideProps = async ({ req }) => {
     .single();
 
   let [r1, r2] = await Promise.all([getUserDetails, getLinks]);
-
+  console.log(r1);
   return { props: { userDetails: r1.data, data: r2.data } };
 };
 
@@ -79,10 +79,12 @@ const Me: NextPage = ({
   const [isNewOpen, setIsNewOpen] = useState(false);
   const [selectedLink, setSelectedLink] = useState<Link | undefined>(undefined);
   const [colorScheme, setColorScheme] = useState(userDetails.colorScheme);
+  const [bio, setBio] = useState(userDetails.bio);
   const [avatar_url, setAvatarUrl] = useState(userDetails.avatar_url);
   const [loading, setLoading] = useState(false);
   const [username, setUsername] = useState(userDetails.username);
   const [links, setLinks] = useState<Link[]>(data);
+
   const myLoader = ({ src, width }) => {
     return `https://via.placeholder.com/${width}`;
   };
@@ -136,11 +138,18 @@ const Me: NextPage = ({
       setLinks(oldLinks);
     }
   };
-  console.log({
-    value: colorScheme,
-    label: Object.keys(colorSchemeEnum)[colorScheme],
-  });
-  async function updateProfile({ username, avatar_url }) {
+
+  const colorSchemeRadioHandler = (
+    event: React.ChangeEvent<HTMLInputElement>
+  ) => {
+    setColorScheme(event.target.value);
+  };
+
+  async function updateProfile({
+    username,
+    avatar_url,
+    colorScheme,
+  }: UserDetails) {
     try {
       setLoading(true);
       // const user = supabaseClient.auth.user();
@@ -150,6 +159,7 @@ const Me: NextPage = ({
         id: user?.id,
         username,
         avatar_url,
+        colorScheme,
         updated_at: new Date(),
       };
 
@@ -161,30 +171,7 @@ const Me: NextPage = ({
         throw error;
       }
     } catch (error) {
-      //alert(error.message)
-    } finally {
-      setLoading(false);
-    }
-  }
-
-  async function updateColorScheme(colorSchemeId: number) {
-    try {
-      setLoading(true);
-      const updates = {
-        id: user?.id,
-        colorScheme: colorSchemeId,
-        updated_at: new Date(),
-      };
-
-      let { error } = await supabaseClient.from("profiles").upsert(updates, {
-        returning: "minimal", // Don't return the value after inserting
-      });
-
-      if (error) {
-        throw error;
-      }
-    } catch (error) {
-      //alert(error.message)
+      alert(error.message);
     } finally {
       setLoading(false);
     }
@@ -192,7 +179,6 @@ const Me: NextPage = ({
 
   return (
     <div className={`${Object.values(colorSchemeEnum)[colorScheme]}`}>
-      <Navigation />
       <div className={styles.container}>
         <Head>
           <title>My Profile</title>
@@ -209,25 +195,26 @@ const Me: NextPage = ({
             }}
           />
           <h1 className="text-3xl font-bold mt-5">@{userDetails?.username}</h1>
-          <textarea
-            defaultValue={userDetails?.bio}
-            placeholder="Tell us about yourself"
-            className=" max-w-xl w-full text-sm bg-gray-50 my-4 p-2 rounded-lg text-gray-500"
-          />
-
-          <div className=" w-full justify-center flex space-x-1">
+          <p className=" max-w-xl w-full text-sm text-center my-4 p-2 rounded-lg whitespace-pre-line">
+            {bio}
+          </p>
+          <div className=" w-full justify-center flex space-x-2">
             <button
               onClick={() => setAddOpen(true)}
-              className=" transition flex items-center  text-bold my-2 ease-in-out rounded bg-teal-50 p-2  text-teal-500 hover:bg-teal-100"
+              className=" transition flex items-center  text-bold my-2 ease-in-out rounded-md bg-teal-50 p-2  text-teal-500 hover:bg-teal-100"
             >
               <PlusIcon className="w-5 h-5 sm:w-4 sm:h-4 " aria-hidden="true" />
               New link
             </button>
             <button
               onClick={() => setIsNewOpen(true)}
-              className=" transition my-2 ease-in-out rounded bg-indigo-50 p-2  text-indigo-500 hover:bg-indigo-100"
+              className=" transition my-2 flex items-center ease-in-out rounded-md bg-indigo-50 p-2  text-indigo-500 hover:bg-indigo-100"
             >
-              <CogIcon className="w-5 h-5 sm:w-4 sm:h-4 " aria-hidden="true" />
+              <CogIcon
+                className="mr-2 w-5 h-5 sm:w-4 sm:h-4 "
+                aria-hidden="true"
+              />
+              Settings
             </button>
           </div>
 
@@ -250,7 +237,7 @@ const Me: NextPage = ({
                         <div
                           ref={provided.innerRef}
                           {...provided.draggableProps}
-                          className="flex space-x-1"
+                          className="flex space-x-2"
                         >
                           <div
                             {...provided.dragHandleProps}
@@ -263,11 +250,11 @@ const Me: NextPage = ({
                           </div>
                           <a
                             href={item.url}
-                            className="transition justify-center ease-in-out my-1 flex-grow max-w-full p-3 bg-stone-50  rounded flex items-center"
+                            className="transition justify-center ease-in-out my-1 flex-grow max-w-full p-3 bg-stone-50 rounded-md flex items-center"
                           >
                             <h2 className="text-md">{item.title}</h2>
                           </a>
-                          <div className="align-center my-1 flex space-x-1">
+                          <div className="align-center my-1 flex space-x-2">
                             <button
                               className=" flex justify-center items-center p-2 self-center rounded-md bg-amber-50 hover:bg-amber-100"
                               onClick={() => {
@@ -302,7 +289,7 @@ const Me: NextPage = ({
               data={selectedLink}
               onSubmit={() => {
                 fetchLinks();
-                setAddOpen(false);
+                setIsOpen(false);
               }}
             />
           </Drawer>
@@ -325,10 +312,10 @@ const Me: NextPage = ({
           <Drawer
             isOpen={isNewOpen}
             setIsOpen={setIsNewOpen}
-            title="Options"
-            description="Try something new!"
+            title="Settings"
+            description="Try something new! Make sure you save once you are happy with the changes."
           >
-            <p>Options</p>
+            {/* <p>Options</p>
             <Listbox
               value={{
                 value: colorScheme,
@@ -344,7 +331,77 @@ const Me: NextPage = ({
                 { value: 2, label: "Sky" },
                 { value: 3, label: "Fire" },
               ]}
-            />
+            /> */}
+            <div className=" flex flex-col space-y-2 overflow-y-auto flex-grow">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Bio
+                </label>
+                <label className="block text-xs text-gray-500 mb-2">
+                  Tell us about yourself. (max 300 characters)
+                </label>
+                <textarea
+                  defaultValue={bio}
+                  onChange={(e) => setBio(e.target.value)}
+                  placeholder="Tell us about yourself"
+                  className=" border border-gray-400 max-w-xl w-full bg-gray-50 my-3 p-2 rounded-lg text-gray-500"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Background
+                </label>
+                <label className="block text-xs text-gray-500 mb-2">
+                  Select a background color
+                </label>
+                <RadioGroup
+                  defaultValue={userDetails.colorScheme}
+                  name="colorScheme"
+                  items={[
+                    {
+                      id: "color_default",
+                      value: 1,
+                      label: "Default",
+                      class:
+                        "bg-white hover:bg-gray-50 peer-checked:ring-green-500 peer-checked:ring-2 peer-checked:border-transparent",
+                    },
+                    {
+                      id: "color_sea",
+                      value: 2,
+                      label: "Sea",
+                      class:
+                        "text-white bg-gradient-to-r from-cyan-500 to-blue-500 hover:bg-gray-50 peer-checked:ring-green-500 peer-checked:ring-2 peer-checked:border-transparent",
+                    },
+                    {
+                      id: "color_fire",
+                      value: 3,
+                      label: "Fire",
+                      class:
+                        "text-white bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500  hover:bg-gray-50 peer-checked:ring-green-500 peer-checked:ring-2 peer-checked:border-transparent",
+                    },
+                    {
+                      id: "color_onix",
+                      value: 4,
+                      label: "Onix",
+                      class:
+                        "text-white bg-gray-800 hover:bg-gray-700 peer-checked:ring-green-500 peer-checked:ring-2 peer-checked:border-transparent",
+                    },
+                  ]}
+                  onChange={colorSchemeRadioHandler}
+                />
+              </div>
+            </div>
+            <div className="flex">
+              <button className="transition cursor-pointer my-2 ease-in-out rounded bg-red-50 p-5  text-red-500 hover:bg-red-100">
+                Logout
+              </button>
+              <button
+                className="transition grow cursor-pointer my-2 ease-in-out rounded-lg bg-teal-50 p-5  text-teal-500 hover:bg-teal-100"
+                onClick={() => console.log("Submit settings")}
+              >
+                Submit
+              </button>
+            </div>
           </Drawer>
         </main>
       </div>
