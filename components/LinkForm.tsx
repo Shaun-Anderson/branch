@@ -34,7 +34,7 @@ export const LinkForm = ({
   });
   const submit = async (data: any) => {
     data.user_id = user.id;
-    let { error } = await supabaseClient.from("links").insert(data);
+    let { error } = await supabaseClient.from("links").upsert(data);
     if (!error) {
       onSubmit();
     }
