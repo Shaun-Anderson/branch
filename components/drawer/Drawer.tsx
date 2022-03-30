@@ -53,7 +53,7 @@ export default function Drawer({
 	                          w-full max-w-full sm:max-w-lg md:max-w-sm p-6 overflow-hidden text-left
 	                          align-middle shadow-xl rounded-r-2xl bg-white`}
             >
-              <div>
+              <div className="h-full flex flex-col">
                 <Dialog.Title className="font-bold text-3xl md:text-3xl flex ">
                   {title}
                   <button
