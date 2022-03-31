@@ -1,9 +1,8 @@
 import type { GetServerSideProps, NextPage } from "next";
 import Head from "next/head";
-// import Image from "next/image";
 import styles from "../styles/Home.module.css";
 import { DropResult, resetServerContext } from "react-beautiful-dnd";
-import { useEffect, useState } from "react";
+import { Fragment, useEffect, useState } from "react";
 import { DragDropContext, Droppable, Draggable } from "../components/dnd";
 import {
   supabaseClient,
@@ -11,26 +10,26 @@ import {
   withAuthRequired,
 } from "@supabase/supabase-auth-helpers/nextjs";
 import Avatar from "../components/avatar/Avatar";
-import { AddForm, LinkForm } from "../components/LinkForm";
+import { LinkForm } from "../components/LinkForm";
 import Drawer from "../components/drawer/Drawer";
 import { Link } from "../types/Link";
 import { UserDetails } from "../types/UserDetails";
 import { colorScheme as colorSchemeEnum } from "../utils/colorSchemes";
-import Listbox from "../components/listbox/Listbox";
 import {
   CogIcon,
   PencilAltIcon,
   PlusIcon,
   SelectorIcon,
   TrashIcon,
-  UserCircleIcon,
+  XIcon,
 } from "@heroicons/react/solid";
 import RadioGroup from "../components/RadioGroup";
+import { Dialog, Transition } from "@headlessui/react";
 
 export const _getServerSideProps: GetServerSideProps = async ({ req }) => {
   resetServerContext();
   const { user, token } = await supabaseClient.auth.api.getUserByCookie(req);
-  supabaseClient.auth.setAuth(token);
+  supabaseClient.auth.setAuth(token as string);
   // links
   const getLinks = supabaseClient
     .from<Link>("links")
@@ -44,7 +43,6 @@ export const _getServerSideProps: GetServerSideProps = async ({ req }) => {
     .single();
 
   let [r1, r2] = await Promise.all([getUserDetails, getLinks]);
-  console.log(r1);
   return { props: { userDetails: r1.data, data: r2.data } };
 };
 
@@ -74,16 +72,36 @@ const Me: NextPage = ({
   userDetails: UserDetails;
   data: Link[];
 }) => {
-  const [isOpen, setIsOpen] = useState(false);
-  const [addOpen, setAddOpen] = useState(false);
-  const [isNewOpen, setIsNewOpen] = useState(false);
+  const [links, setLinks] = useState<Link[]>(data);
+
   const [selectedLink, setSelectedLink] = useState<Link | undefined>(undefined);
   const [colorScheme, setColorScheme] = useState(userDetails.colorScheme);
-  const [bio, setBio] = useState(userDetails.bio);
   const [avatar_url, setAvatarUrl] = useState(userDetails.avatar_url);
   const [loading, setLoading] = useState(false);
+
+  // Settings State
+  let [isSettingsOpen, setIsSettingsOpen] = useState(false);
   const [username, setUsername] = useState(userDetails.username);
-  const [links, setLinks] = useState<Link[]>(data);
+  const [bio, setBio] = useState(userDetails.bio);
+
+  // Add State
+  let [isAddOpen, setIsAddOpen] = useState(false);
+
+  // Edit State
+  let [isEditOpen, setIsEditOpen] = useState(false);
+
+  // Delete State
+  let [isDeleteOpen, setIsDeleteOpen] = useState(false);
+  const deleteLink = async (id: string) => {
+    const { data, error } = await supabaseClient
+      .from<Link>("links")
+      .delete()
+      .match({ id });
+    if (!error) {
+      fetchLinks();
+      setIsDeleteOpen(false);
+    }
+  };
 
   const myLoader = ({ src, width }) => {
     return `https://via.placeholder.com/${width}`;
@@ -200,15 +218,18 @@ const Me: NextPage = ({
           </p>
           <div className=" w-full justify-center flex space-x-2">
             <button
-              onClick={() => setAddOpen(true)}
-              className=" transition flex items-center  text-bold my-2 ease-in-out rounded-md bg-teal-50 p-2  text-teal-500 hover:bg-teal-100"
+              onClick={() => setIsAddOpen(true)}
+              className=" transition flex items-center  text-bold my-2 ease-in-out rounded-md bg-teal-50 py-2 px-3  text-teal-500 hover:bg-teal-100"
             >
-              <PlusIcon className="w-5 h-5 sm:w-4 sm:h-4 " aria-hidden="true" />
+              <PlusIcon
+                className="w-5 h-5 sm:w-4 sm:h-4 mr-2 "
+                aria-hidden="true"
+              />
               New link
             </button>
             <button
-              onClick={() => setIsNewOpen(true)}
-              className=" transition my-2 flex items-center ease-in-out rounded-md bg-indigo-50 p-2  text-indigo-500 hover:bg-indigo-100"
+              onClick={() => setIsSettingsOpen(true)}
+              className=" transition my-2 flex items-center ease-in-out rounded-md bg-indigo-50 py-2 px-3  text-indigo-500 hover:bg-indigo-100"
             >
               <CogIcon
                 className="mr-2 w-5 h-5 sm:w-4 sm:h-4 "
@@ -259,7 +280,7 @@ const Me: NextPage = ({
                               className=" flex justify-center items-center p-2 self-center rounded-md bg-amber-50 hover:bg-amber-100"
                               onClick={() => {
                                 setSelectedLink(item);
-                                setIsOpen(true);
+                                setIsEditOpen(true);
                               }}
                             >
                               <PencilAltIcon
@@ -267,7 +288,13 @@ const Me: NextPage = ({
                                 aria-hidden="true"
                               />
                             </button>
-                            <button className="  p-2 flex justify-center items-center self-center rounded-md  bg-red-50 hover:bg-red-100">
+                            <button
+                              className="  p-2 flex justify-center items-center self-center rounded-md  bg-red-50 hover:bg-red-100"
+                              onClick={() => {
+                                setSelectedLink(item);
+                                setIsDeleteOpen(true);
+                              }}
+                            >
                               <TrashIcon
                                 className="w-5 h-5 sm:w-4 sm:h-4 text-red-400"
                                 aria-hidden="true"
@@ -283,20 +310,10 @@ const Me: NextPage = ({
               )}
             </Droppable>
           </DragDropContext>
-          <Drawer isOpen={isOpen} setIsOpen={setIsOpen} title="Edit link">
-            <LinkForm
-              user={user}
-              data={selectedLink}
-              onSubmit={() => {
-                fetchLinks();
-                setIsOpen(false);
-              }}
-            />
-          </Drawer>
           {/* Add Drawer */}
           <Drawer
-            isOpen={addOpen}
-            setIsOpen={setAddOpen}
+            isOpen={isAddOpen}
+            setIsOpen={setIsAddOpen}
             title="Add link"
             description="Add a new link"
           >
@@ -304,34 +321,32 @@ const Me: NextPage = ({
               user={user}
               onSubmit={() => {
                 fetchLinks();
-                setAddOpen(false);
+                setIsAddOpen(false);
+              }}
+            />
+          </Drawer>
+          {/* Edit Drawer */}
+          <Drawer
+            isOpen={isEditOpen}
+            setIsOpen={setIsEditOpen}
+            title="Edit link"
+          >
+            <LinkForm
+              user={user}
+              data={selectedLink}
+              onSubmit={() => {
+                fetchLinks();
+                setIsEditOpen(false);
               }}
             />
           </Drawer>
           {/* Option Drawer */}
           <Drawer
-            isOpen={isNewOpen}
-            setIsOpen={setIsNewOpen}
+            isOpen={isSettingsOpen}
+            setIsOpen={setIsSettingsOpen}
             title="Settings"
             description="Try something new! Make sure you save once you are happy with the changes."
           >
-            {/* <p>Options</p>
-            <Listbox
-              value={{
-                value: colorScheme,
-                label: Object.keys(colorSchemeEnum)[colorScheme],
-              }}
-              onChange={async (data) => {
-                console.log("ON CHANGE: " + data.value);
-                setColorScheme(data.value as number);
-                updateColorScheme(data.value as number);
-              }}
-              items={[
-                { value: 1, label: "Default" },
-                { value: 2, label: "Sky" },
-                { value: 3, label: "Fire" },
-              ]}
-            /> */}
             <div className=" flex flex-col space-y-2 overflow-y-auto flex-grow">
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
@@ -403,6 +418,72 @@ const Me: NextPage = ({
               </button>
             </div>
           </Drawer>
+          <Transition appear show={isDeleteOpen} as={Fragment}>
+            <Dialog
+              as="div"
+              className="fixed inset-0 z-10 overflow-y-auto"
+              onClose={() => setIsDeleteOpen(false)}
+            >
+              <div className="min-h-screen px-4 text-center flex justify-center items-center">
+                <Transition.Child
+                  as={Fragment}
+                  enter="transition-opacity ease-in duration-300"
+                  enterFrom="opacity-0"
+                  enterTo="opacity-30"
+                  entered="opacity-30"
+                  leave="transition-opacity ease-out duration-300"
+                  leaveFrom="opacity-30"
+                  leaveTo="opacity-0"
+                >
+                  <Dialog.Overlay className=" fixed inset-0 bg-black" />
+                </Transition.Child>
+
+                <Transition.Child
+                  as={Fragment}
+                  enter="ease-out duration-300"
+                  enterFrom="opacity-0 scale-95"
+                  enterTo="opacity-100 scale-100"
+                  leave="ease-in duration-200"
+                  leaveFrom="opacity-100 scale-100"
+                  leaveTo="opacity-0 scale-95"
+                >
+                  <div className="inline-block w-full max-w-md p-6 my-8 overflow-hidden text-left align-middle transition-all transform bg-white shadow-xl rounded-2xl">
+                    <Dialog.Title
+                      as="h3"
+                      className="text-lg font-medium leading-6 text-gray-900 flex"
+                    >
+                      Delete link
+                      <button
+                        onClick={() => setIsDeleteOpen(false)}
+                        className="inline-flex ml-auto items-center justify-center px-4 py-2 font-semibold leading-6 text-sm rounded-md text-gray-900 bg-gray-100 hover:bg-gray-200 transition ease-in-out duration-150 cursor-pointer disabled:cursor-not-allowed disabled:text-gray-300 disabled:bg-gray-50"
+                      >
+                        <XIcon className="w-4 h-4" />
+                      </button>
+                    </Dialog.Title>
+                    <Dialog.Description className="text-sm text-gray-500 my-2">
+                      Are you sure you want to delete this link? this will be
+                      permanently removed. This action cannot be undone.
+                    </Dialog.Description>
+
+                    <div className="mt-4 flex justify-end space-x-2">
+                      <button
+                        className="justify-center px-4 py-2 text-sm font-medium text-gray-900 bg-gray-100 border border-transparent rounded-md hover:bg-gray-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-gray-500"
+                        onClick={() => setIsDeleteOpen(false)}
+                      >
+                        Cancel
+                      </button>
+                      <button
+                        className="justify-center px-4 py-2 text-sm font-medium text-red-900 bg-red-100 border border-transparent rounded-md hover:bg-red-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-red-500"
+                        onClick={() => deleteLink(selectedLink.id)}
+                      >
+                        Delete
+                      </button>
+                    </div>
+                  </div>
+                </Transition.Child>
+              </div>
+            </Dialog>
+          </Transition>
         </main>
       </div>
     </div>
