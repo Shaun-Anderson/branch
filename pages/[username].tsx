@@ -8,14 +8,19 @@ import { Navigation } from "../components/navigation";
 import Image from "next/image";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faFacebook } from "@fortawesome/free-brands-svg-icons";
-import { colorScheme } from "../utils/colorSchemes";
+import {
+  colorScheme,
+  linkColorScheme,
+  linkRounding,
+} from "../utils/colorSchemes";
 
-export const getServerSideProps: GetServerSideProps = async ({
-  req,
-  params,
-}) => {
-  const { username } = params;
+export const getServerSideProps: GetServerSideProps = async (context) => {
+  const { username } = context.params;
   console.log(username);
+  // const { user, token } = await supabaseClient.auth.api.getUserByCookie(
+  //   context.req
+  // );
+  // supabaseClient.auth.setAuth(token as string);
 
   // user details
   const userDetails = await supabaseClient
@@ -23,7 +28,7 @@ export const getServerSideProps: GetServerSideProps = async ({
     .select("*")
     .eq("username", username)
     .single();
-  console.log(userDetails.data);
+  console.log(supabaseClient);
   if (!userDetails.data) {
     return {
       redirect: {
@@ -58,7 +63,7 @@ const PublicProfile = ({
     return publicURL;
   };
   return (
-    <div className={`${Object.values(colorScheme)[userDetails.colorScheme]}`}>
+    <div className={`${Object.values(colorScheme)[userDetails.color_scheme]}`}>
       <div className={styles.container}>
         <Head>
           <title>{userDetails.username}'s Links</title>
@@ -72,12 +77,12 @@ const PublicProfile = ({
             loader={myLoader}
             src="me.png"
             alt="Profile picture"
-            className="rounded-full  border-2 border-black border-solid object-cover"
+            className="rounded-full  border-2 border-black border-solid object-cover bg-gray-500"
             width={100}
             height={100}
           />
           <h1 className="text-3xl font-bold mt-5">@{userDetails?.username}</h1>
-          <p className=" max-w-xl w-full text-sm text-center my-4 p-2 rounded-lg text-black opacity-50">
+          <p className=" max-w-xl w-full text-sm text-center my-4 p-2   ">
             {userDetails?.bio}
           </p>
           {data.map((item: Link, index: number) => (
@@ -85,7 +90,11 @@ const PublicProfile = ({
               <div className="flex">
                 <a
                   href={item.url}
-                  className="transition justify-center ease-in-out my-1 flex-grow max-w-full p-3 bg-stone-50  rounded-md flex items-center"
+                  className={`transition justify-center ease-in-out my-1 flex-grow max-w-full p-3 flex items-center ${
+                    Object.values(linkColorScheme)[
+                      userDetails.link_color_scheme
+                    ]
+                  } ${Object.values(linkRounding)[userDetails.link_rounding]}`}
                 >
                   <h2 className="text-md ">{item.title}</h2>
                 </a>
