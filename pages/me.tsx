@@ -14,17 +14,26 @@ import { LinkForm } from "../components/LinkForm";
 import Drawer from "../components/drawer/Drawer";
 import { Link } from "../types/Link";
 import { UserDetails } from "../types/UserDetails";
-import { colorScheme as colorSchemeEnum } from "../utils/colorSchemes";
 import {
+  colorScheme,
+  color_scheme as color_schemeEnum,
+  linkColorScheme,
+  linkcolor_scheme,
+  linkRounding,
+} from "../utils/colorSchemes";
+import {
+  ArrowLeftIcon,
   CogIcon,
+  DotsVerticalIcon,
   PencilAltIcon,
   PlusIcon,
   SelectorIcon,
   TrashIcon,
+  UserCircleIcon,
   XIcon,
 } from "@heroicons/react/solid";
 import RadioGroup from "../components/RadioGroup";
-import { Dialog, Transition } from "@headlessui/react";
+import { Dialog, Menu, Transition } from "@headlessui/react";
 
 export const _getServerSideProps: GetServerSideProps = async ({ req }) => {
   resetServerContext();
@@ -51,18 +60,6 @@ export const getServerSideProps = withAuthRequired({
   redirectTo: "/signin",
 });
 
-const reorder = (
-  list: Item[],
-  startIndex: number,
-  endIndex: number
-): Item[] => {
-  const result = Array.from(list);
-  const [removed] = result.splice(startIndex, 1);
-  result.splice(endIndex, 0, removed);
-
-  return result;
-};
-
 const Me: NextPage = ({
   user,
   userDetails,
@@ -75,15 +72,60 @@ const Me: NextPage = ({
   const [links, setLinks] = useState<Link[]>(data);
 
   const [selectedLink, setSelectedLink] = useState<Link | undefined>(undefined);
-  const [colorScheme, setColorScheme] = useState(userDetails.colorScheme);
   const [avatar_url, setAvatarUrl] = useState(userDetails.avatar_url);
   const [loading, setLoading] = useState(false);
 
   // Settings State
+  // Loacl version of user detials so the user can update and view their changes before submitting them.
   let [isSettingsOpen, setIsSettingsOpen] = useState(false);
-  const [username, setUsername] = useState(userDetails.username);
-  const [bio, setBio] = useState(userDetails.bio);
+  const [userSettings, setUserSettings] = useState<UserDetails>(userDetails);
 
+  console.log(userSettings);
+
+  async function updateProfile() {
+    try {
+      setLoading(true);
+      const updates = {
+        ...userSettings,
+        updated_at: new Date(),
+      };
+
+      let { error } = await supabaseClient.from("profiles").upsert(updates, {
+        returning: "minimal",
+      });
+
+      if (error) {
+        throw error;
+      }
+      setIsSettingsOpen(false);
+    } catch (error) {
+      alert(error.message);
+    } finally {
+      setLoading(false);
+    }
+  }
+  async function updateAvatar(avatar_url: string) {
+    try {
+      setLoading(true);
+      const updates = {
+        id: user?.id,
+        avatar_url,
+        updated_at: new Date(),
+      };
+
+      let { error } = await supabaseClient.from("profiles").upsert(updates, {
+        returning: "minimal",
+      });
+
+      if (error) {
+        throw error;
+      }
+    } catch (error) {
+      alert(error.message);
+    } finally {
+      setLoading(false);
+    }
+  }
   // Add State
   let [isAddOpen, setIsAddOpen] = useState(false);
 
@@ -103,10 +145,6 @@ const Me: NextPage = ({
     }
   };
 
-  const myLoader = ({ src, width }) => {
-    return `https://via.placeholder.com/${width}`;
-  };
-  console.log(userDetails.colorScheme);
   const fetchLinks = () => {
     supabaseClient
       .from<Link>("links")
@@ -121,9 +159,18 @@ const Me: NextPage = ({
       });
   };
 
-  useEffect(() => {
-    setAvatarUrl(userDetails?.avatar_url);
-  }, [userDetails]);
+  // Dnd Functions
+  const reorder = (
+    list: Item[],
+    startIndex: number,
+    endIndex: number
+  ): Link[] => {
+    const result = Array.from(list);
+    const [removed] = result.splice(startIndex, 1);
+    result.splice(endIndex, 0, removed);
+
+    return result;
+  };
 
   const onDragEnd = async (result: DropResult) => {
     // dropped outside the list
@@ -157,46 +204,8 @@ const Me: NextPage = ({
     }
   };
 
-  const colorSchemeRadioHandler = (
-    event: React.ChangeEvent<HTMLInputElement>
-  ) => {
-    setColorScheme(event.target.value);
-  };
-
-  async function updateProfile({
-    username,
-    avatar_url,
-    colorScheme,
-  }: UserDetails) {
-    try {
-      setLoading(true);
-      // const user = supabaseClient.auth.user();
-      console.log("Upsert");
-      console.log(user);
-      const updates = {
-        id: user?.id,
-        username,
-        avatar_url,
-        colorScheme,
-        updated_at: new Date(),
-      };
-
-      let { error } = await supabaseClient.from("profiles").upsert(updates, {
-        returning: "minimal", // Don't return the value after inserting
-      });
-
-      if (error) {
-        throw error;
-      }
-    } catch (error) {
-      alert(error.message);
-    } finally {
-      setLoading(false);
-    }
-  }
-
   return (
-    <div className={`${Object.values(colorSchemeEnum)[colorScheme]}`}>
+    <div className={`${Object.values(colorScheme)[userSettings.color_scheme]}`}>
       <div className={styles.container}>
         <Head>
           <title>My Profile</title>
@@ -207,14 +216,14 @@ const Me: NextPage = ({
           <Avatar
             url={avatar_url}
             size={100}
-            onUpload={(url) => {
+            onUpload={(url: string) => {
               setAvatarUrl(url);
-              updateProfile({ username, avatar_url: url });
+              updateAvatar(url);
             }}
           />
           <h1 className="text-3xl font-bold mt-5">@{userDetails?.username}</h1>
           <p className=" max-w-xl w-full text-sm text-center my-4 p-2 rounded-lg whitespace-pre-line">
-            {bio}
+            {userSettings.bio}
           </p>
           <div className=" w-full justify-center flex space-x-2">
             <button
@@ -271,11 +280,89 @@ const Me: NextPage = ({
                           </div>
                           <a
                             href={item.url}
-                            className="transition justify-center ease-in-out my-1 flex-grow max-w-full p-3 bg-stone-50 rounded-md flex items-center"
+                            className={`transition justify-center ease-in-out my-1 flex-grow max-w-full p-3 flex items-center ${
+                              Object.values(linkColorScheme)[
+                                userSettings.link_color_scheme
+                              ]
+                            } ${
+                              Object.values(linkRounding)[
+                                userSettings.link_rounding
+                              ]
+                            }`}
                           >
                             <h2 className="text-md">{item.title}</h2>
                           </a>
-                          <div className="align-center my-1 flex space-x-2">
+                          <div className="flex justify-center sm:invisible sm:hidden">
+                            <Menu
+                              as="div"
+                              className="relative inline-block text-left self-center"
+                            >
+                              <Menu.Button className="inline-flex transition-all ease-in-out p-2 rounded-md justify-center w-full text-sm font-medium text-white bg-gray-50 hover:bg-gray-100 bg-opacity-70 hover:scale-105 hover:bg-opacity-30 focus:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-opacity-75">
+                                <DotsVerticalIcon
+                                  className="w-5 h-5 sm:w-4 sm:h-4  text-gray-400"
+                                  aria-hidden="true"
+                                />
+                              </Menu.Button>
+                              <Transition
+                                as={Fragment}
+                                enter="transition ease-out duration-100"
+                                enterFrom="transform opacity-0 scale-95"
+                                enterTo="transform opacity-100 scale-100"
+                                leave="transition ease-in duration-75"
+                                leaveFrom="transform opacity-100 scale-100"
+                                leaveTo="transform opacity-0 scale-95"
+                              >
+                                <Menu.Items className="absolute z-10 right-0 w-56 mt-2 origin-top-right bg-white divide-y divide-gray-100 rounded-md shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none">
+                                  <div className="px-1 py-1 ">
+                                    <Menu.Item>
+                                      {({ active }) => (
+                                        <button
+                                          onClick={() => {
+                                            setSelectedLink(item);
+                                            setIsEditOpen(true);
+                                          }}
+                                          className={`${
+                                            active
+                                              ? "bg-violet-500 text-white"
+                                              : "text-gray-900"
+                                          } group flex rounded-md items-center w-full px-2 py-2 text-sm`}
+                                        >
+                                          <PencilAltIcon
+                                            className="w-4 h-4 mr-3"
+                                            aria-hidden="true"
+                                          />
+                                          Edit
+                                        </button>
+                                      )}
+                                    </Menu.Item>
+                                    <Menu.Item>
+                                      {({ active }) => (
+                                        <button
+                                          onClick={() => {
+                                            setSelectedLink(item);
+                                            setIsDeleteOpen(true);
+                                          }}
+                                          className={`${
+                                            active
+                                              ? "bg-violet-500 text-white"
+                                              : "text-gray-900"
+                                          } group flex rounded-md items-center w-full px-2 py-2 text-sm`}
+                                        >
+                                          <TrashIcon
+                                            className="w-4 h-4 mr-3"
+                                            aria-hidden="true"
+                                          />
+                                          Delete
+                                        </button>
+                                      )}
+                                    </Menu.Item>
+                                  </div>
+                                </Menu.Items>
+                              </Transition>
+                            </Menu>
+                          </div>
+
+                          <div className=" hidden align-center my-1 sm:visible sm:flex space-x-2 ">
                             <button
                               className=" flex justify-center items-center p-2 self-center rounded-md bg-amber-50 hover:bg-amber-100"
                               onClick={() => {
@@ -356,8 +443,13 @@ const Me: NextPage = ({
                   Tell us about yourself. (max 300 characters)
                 </label>
                 <textarea
-                  defaultValue={bio}
-                  onChange={(e) => setBio(e.target.value)}
+                  defaultValue={userSettings.bio}
+                  onChange={(e) =>
+                    setUserSettings({
+                      ...userSettings,
+                      bio: e.target.value,
+                    })
+                  }
                   placeholder="Tell us about yourself"
                   className=" border border-gray-400 max-w-xl w-full bg-gray-50 my-3 p-2 rounded-lg text-gray-500"
                 />
@@ -370,49 +462,144 @@ const Me: NextPage = ({
                   Select a background color
                 </label>
                 <RadioGroup
-                  defaultValue={userDetails.colorScheme}
-                  name="colorScheme"
+                  defaultValue={userDetails.color_scheme}
+                  name="color_scheme"
                   items={[
                     {
                       id: "color_default",
                       value: 1,
                       label: "Default",
                       class:
-                        "bg-white hover:bg-gray-50 peer-checked:ring-green-500 peer-checked:ring-2 peer-checked:border-transparent",
+                        "bg-white rounded-md hover:bg-gray-50 peer-checked:ring-green-500 peer-checked:ring-2 peer-checked:border-transparent",
                     },
                     {
                       id: "color_sea",
                       value: 2,
                       label: "Sea",
                       class:
-                        "text-white bg-gradient-to-r from-cyan-500 to-blue-500 hover:bg-gray-50 peer-checked:ring-green-500 peer-checked:ring-2 peer-checked:border-transparent",
+                        "text-white rounded-md bg-gradient-to-r from-cyan-500 to-blue-500 hover:bg-gray-50 peer-checked:ring-green-500 peer-checked:ring-2 peer-checked:border-transparent",
                     },
                     {
                       id: "color_fire",
                       value: 3,
                       label: "Fire",
                       class:
-                        "text-white bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500  hover:bg-gray-50 peer-checked:ring-green-500 peer-checked:ring-2 peer-checked:border-transparent",
+                        "text-white rounded-md bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500  hover:bg-gray-50 peer-checked:ring-green-500 peer-checked:ring-2 peer-checked:border-transparent",
                     },
                     {
                       id: "color_onix",
                       value: 4,
                       label: "Onix",
                       class:
-                        "text-white bg-gray-800 hover:bg-gray-700 peer-checked:ring-green-500 peer-checked:ring-2 peer-checked:border-transparent",
+                        "text-white rounded-md  bg-gray-800 hover:bg-gray-700 peer-checked:ring-green-500 peer-checked:ring-2 peer-checked:border-transparent",
                     },
                   ]}
-                  onChange={colorSchemeRadioHandler}
+                  onChange={(event: React.ChangeEvent<HTMLInputElement>) => {
+                    setUserSettings({
+                      ...userSettings,
+                      color_scheme: event.target.value as unknown as number,
+                    });
+                  }}
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Link Theme
+                </label>
+                <label className="block text-xs text-gray-500 mb-2">
+                  Select a link theme.
+                </label>
+                <RadioGroup
+                  defaultValue={userDetails.link_color_scheme}
+                  name="link"
+                  items={[
+                    {
+                      id: "link_default",
+                      value: 1,
+                      label: "Light",
+                      class:
+                        "bg-white text-black rounded-md hover:bg-gray-50 peer-checked:ring-green-500 peer-checked:ring-2 peer-checked:border-transparent",
+                    },
+                    {
+                      id: "link_regal",
+                      value: 2,
+                      label: "Regal",
+                      class:
+                        "bg-regal-blue text-white rounded-md hover:bg-gray-600 peer-checked:ring-green-500 peer-checked:ring-2 peer-checked:border-transparent",
+                    },
+                    {
+                      id: "link_dark",
+                      value: 3,
+                      label: "Dark",
+                      class:
+                        "bg-black text-white rounded-md hover:bg-gray-600 peer-checked:ring-green-500 peer-checked:ring-2 peer-checked:border-transparent",
+                    },
+                  ]}
+                  onChange={(event: React.ChangeEvent<HTMLInputElement>) => {
+                    setUserSettings({
+                      ...userSettings,
+                      link_color_scheme: event.target
+                        .value as unknown as number,
+                    });
+                  }}
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Link rounding
+                </label>
+                <label className="block text-xs text-gray-500 mb-2">
+                  Select how rounded you links should be.
+                </label>
+                <RadioGroup
+                  defaultValue={userDetails.link_rounding}
+                  name="link_rounding"
+                  items={[
+                    {
+                      id: "rounding_sm",
+                      value: 1,
+                      label: "SML",
+                      class:
+                        "bg-white rounded-sm hover:bg-gray-50 peer-checked:ring-green-500 peer-checked:ring-2 peer-checked:border-transparent",
+                    },
+                    {
+                      id: "rounding_md",
+                      value: 2,
+                      label: "MED",
+                      class:
+                        "bg-white  rounded-md hover:bg-gray-50 peer-checked:ring-green-500 peer-checked:ring-2 peer-checked:border-transparent",
+                    },
+                    {
+                      id: "rounding_lg",
+                      value: 3,
+                      label: "LRG",
+                      class:
+                        "bg-white rounded-xl hover:bg-gray-50 peer-checked:ring-green-500 peer-checked:ring-2 peer-checked:border-transparent",
+                    },
+                    {
+                      id: "rounding_xl",
+                      value: 4,
+                      label: "XL",
+                      class:
+                        "bg-white rounded-full hover:bg-gray-50 peer-checked:ring-green-500 peer-checked:ring-2 peer-checked:border-transparent",
+                    },
+                  ]}
+                  onChange={(event: React.ChangeEvent<HTMLInputElement>) => {
+                    setUserSettings({
+                      ...userSettings,
+                      link_rounding: event.target.value as unknown as number,
+                    });
+                  }}
                 />
               </div>
             </div>
-            <div className="flex">
+            <div className="flex space-x-2">
               <button className="transition cursor-pointer my-2 ease-in-out rounded bg-red-50 p-5  text-red-500 hover:bg-red-100">
                 Logout
               </button>
               <button
                 className="transition grow cursor-pointer my-2 ease-in-out rounded-lg bg-teal-50 p-5  text-teal-500 hover:bg-teal-100"
-                onClick={() => console.log("Submit settings")}
+                onClick={() => updateProfile()}
               >
                 Submit
               </button>
@@ -474,7 +661,7 @@ const Me: NextPage = ({
                       </button>
                       <button
                         className="justify-center px-4 py-2 text-sm font-medium text-red-900 bg-red-100 border border-transparent rounded-md hover:bg-red-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-red-500"
-                        onClick={() => deleteLink(selectedLink.id)}
+                        onClick={() => deleteLink(selectedLink!.id)}
                       >
                         Delete
                       </button>
