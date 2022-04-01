@@ -3,5 +3,7 @@ export interface UserDetails {
   username: string;
   avatar_url?: string;
   bio: string;
-  colorScheme: number;
+  color_scheme: number;
+  link_color_scheme: number;
+  link_rounding: number;
 }
