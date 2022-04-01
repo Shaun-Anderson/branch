@@ -1,4 +1,3 @@
-import { INSPECT_MAX_BYTES } from "buffer";
 import { useState } from "react";
 
 interface RadioGroupProps {
@@ -34,7 +33,7 @@ export default function RadioGroup(props: RadioGroupProps) {
             }}
           />
           <label
-            className={`flex w-36  p-5 border border-gray-300 rounded-lg cursor-pointer focus:outline-none ${item.class}`}
+            className={`flex w-36  p-5 border border-gray-300 cursor-pointer focus:outline-none ${item.class}`}
             htmlFor={item.id}
           >
             {item.label}
