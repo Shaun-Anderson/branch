@@ -1,12 +1,10 @@
 import React from "react";
-import { useController, UseControllerProps } from "react-hook-form";
 
 interface ButtonProps {
   label: string;
   loadingText?: string;
   loading?: boolean;
   disabled: boolean;
-
   type: "button" | "reset" | "submit" | undefined;
 }
 const Button = (props: ButtonProps) => {
