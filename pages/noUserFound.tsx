@@ -1,7 +1,7 @@
 import { NextPage } from "next";
 import Head from "next/head";
 import styles from "../styles/Home.module.css";
-import { Navigation } from "../components/Navigation";
+import { Navigation } from "@/components/Navigation";
 
 const UserNotFound: NextPage = () => {
   return (
