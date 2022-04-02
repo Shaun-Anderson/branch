@@ -4,15 +4,12 @@ import { useEffect, useState, FormEvent } from "react";
 import { useUser } from "@supabase/supabase-auth-helpers/react";
 import { supabaseClient } from "@supabase/supabase-auth-helpers/nextjs";
 
-import { Provider } from "@supabase/supabase-js";
-import { getURL } from "../utils/helpers";
 import Input from "../components/Input";
 import Button from "../components/Button";
 
 const SignIn = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [showPasswordInput, setShowPasswordInput] = useState(true);
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState<{ type?: string; content?: string }>({
     type: "",
@@ -33,21 +30,6 @@ const SignIn = () => {
       { redirectTo: "http://localhost:3000" }
     );
     console.log(user);
-    if (error) {
-      setMessage({ type: "error", content: error.message });
-    }
-    if (!password) {
-      setMessage({
-        type: "note",
-        content: "Check your email for the magic link.",
-      });
-    }
-    setLoading(false);
-  };
-
-  const handleOAuthSignIn = async (provider: Provider) => {
-    setLoading(true);
-    const { error } = await supabaseClient.auth.signIn({ provider });
     if (error) {
       setMessage({ type: "error", content: error.message });
     }
@@ -80,104 +62,42 @@ const SignIn = () => {
               </div>
             )}
 
-            {!showPasswordInput && (
-              <form onSubmit={handleSignin} className="flex flex-col space-y-4">
-                <Input
-                  label={"Email"}
-                  type="email"
-                  placeholder="Email"
-                  value={email}
-                  onChange={setEmail}
-                  required
-                />
-                <button
-                  className="bg-white text-zinc-800 cursor-pointer inline-flex px-10 rounded-sm leading-6  transition ease-in-out duration-150 shadow-sm font-semibold text-center justify-center uppercase py-4 border border-transparent items-center hover:bg-zinc-800 hover:text-white hover:border hover:border-white"
-                  // variant="slim"
-                  type="submit"
-                  // loading={loading}
-                  disabled={!email.length}
-                >
-                  Send magic link
-                </button>
-              </form>
-            )}
-
-            {showPasswordInput && (
-              <form onSubmit={handleSignin} className="flex flex-col space-y-4">
-                <Input
-                  label={"Email"}
-                  type="email"
-                  placeholder="Email"
-                  value={email}
-                  onChange={setEmail}
-                  required
-                />
-                <Input
-                  label={"Password"}
-                  type="password"
-                  placeholder="Password"
-                  value={password}
-                  onChange={setPassword}
-                  required
-                />
-                <Button
-                  type="submit"
-                  loading={loading}
-                  label="Sign in"
-                  loadingText="Signing in..."
-                  disabled={!password.length || !email.length}
-                />
-              </form>
-            )}
+            <form onSubmit={handleSignin} className="flex flex-col space-y-4">
+              <Input
+                label={"Email"}
+                type="email"
+                placeholder="Email"
+                value={email}
+                onChange={setEmail}
+                required
+              />
+              <Input
+                label={"Password"}
+                type="password"
+                placeholder="Password"
+                value={password}
+                onChange={setPassword}
+                required
+              />
+              <Button
+                type="submit"
+                loading={loading}
+                label="Sign in"
+                loadingText="Signing in..."
+                disabled={!password.length || !email.length}
+              />
+            </form>
 
             <span className="pt-1 text-center text-sm">
-              <a
-                href="#"
-                className="text-gray-500 text-accent-9 hover:underline cursor-pointer"
-                onClick={() => {
-                  if (showPasswordInput) setPassword("");
-                  setShowPasswordInput(!showPasswordInput);
-                  setMessage({});
-                }}
-              >
-                {`Or sign in with ${
-                  showPasswordInput ? "magic link" : "password"
-                }.`}
-              </a>
-            </span>
-
-            <span className="pt-1 text-center text-sm">
-              <span className="text-gray-500">Don't have an account?</span>
+              <span className="text-gray-800">Don't have an account?</span>
               {` `}
               <Link href="/signup">
-                <a className="text-accent-9 font-bold hover:underline cursor-pointer">
+                <a className="text-accent-9 font-bold hover:underline cursor-pointer ml-2">
                   Sign up.
                 </a>
               </Link>
             </span>
           </div>
-
-          <div className="flex items-center my-6">
-            <div
-              className="border-t border-zinc-600 flex-grow mr-3"
-              aria-hidden="true"
-            ></div>
-            <div className="text-zinc-400">Or</div>
-            <div
-              className="border-t border-zinc-600 flex-grow ml-3"
-              aria-hidden="true"
-            ></div>
-          </div>
-
-          <button
-            // variant="slim"
-            type="submit"
-            disabled={loading}
-            onClick={() => handleOAuthSignIn("github")}
-          >
-            {/* <GitHub /> */}
-            <span className="ml-2">Continue with GitHub</span>
-          </button>
         </div>
       </div>
     );
