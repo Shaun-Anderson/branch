@@ -53,38 +53,40 @@ export const Navigation = () => {
                       <div className="px-1 py-1 ">
                         <Menu.Item>
                           {({ active }) => (
-                            <a
-                              href="/me"
-                              className={`${
-                                active
-                                  ? "bg-violet-500 text-white"
-                                  : "text-gray-900"
-                              } group flex rounded-md items-center w-full px-2 py-2 text-sm`}
-                            >
-                              <UserCircleIcon
-                                className="w-4 h-4 mr-3"
-                                aria-hidden="true"
-                              />
-                              Edit Profile
-                            </a>
+                            <Link href="/me" passHref>
+                              <a
+                                className={`${
+                                  active
+                                    ? "bg-violet-500 text-white"
+                                    : "text-gray-900"
+                                } group flex rounded-md items-center w-full px-2 py-2 text-sm`}
+                              >
+                                <UserCircleIcon
+                                  className="w-4 h-4 mr-3"
+                                  aria-hidden="true"
+                                />
+                                Edit Profile
+                              </a>
+                            </Link>
                           )}
                         </Menu.Item>
                         <Menu.Item>
                           {({ active }) => (
-                            <a
-                              href="/api/auth/logout"
-                              className={`${
-                                active
-                                  ? "bg-violet-500 text-white"
-                                  : "text-gray-900"
-                              } group flex rounded-md items-center w-full px-2 py-2 text-sm`}
-                            >
-                              <ArrowLeftIcon
-                                className="w-4 h-4 mr-3"
-                                aria-hidden="true"
-                              />
-                              Logout
-                            </a>
+                            <Link href="/api/auth/logout" passHref>
+                              <a
+                                className={`${
+                                  active
+                                    ? "bg-violet-500 text-white"
+                                    : "text-gray-900"
+                                } group flex rounded-md items-center w-full px-2 py-2 text-sm`}
+                              >
+                                <ArrowLeftIcon
+                                  className="w-4 h-4 mr-3"
+                                  aria-hidden="true"
+                                />
+                                Logout
+                              </a>
+                            </Link>
                           )}
                         </Menu.Item>
                       </div>

@@ -5,8 +5,6 @@ import { UserDetails } from "../types/UserDetails";
 import Head from "next/head";
 import styles from "../styles/Home.module.css";
 import Image, { ImageLoaderProps } from "next/image";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faFacebook } from "@fortawesome/free-brands-svg-icons";
 import {
   colorScheme,
   linkColorScheme,
@@ -65,7 +63,7 @@ const PublicProfile = ({
     <div className={`${Object.values(colorScheme)[userDetails.color_scheme]}`}>
       <div className={styles.container}>
         <Head>
-          <title>{userDetails.username}'s Links</title>
+          <title>{userDetails.username}&apos;s Links</title>
           <meta
             name="viewport"
             content="initial-scale=1.0, width=device-width"
