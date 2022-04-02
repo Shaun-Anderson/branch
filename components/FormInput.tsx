@@ -1,12 +1,16 @@
 import React from "react";
-import { useController, UseControllerProps } from "react-hook-form";
+import {
+  FieldValues,
+  useController,
+  UseControllerProps,
+} from "react-hook-form";
 
-interface FormInputProps extends UseControllerProps {
+interface FormInputProps<T extends FieldValues> extends UseControllerProps<T> {
   label: string;
   placeholder?: string;
   type: React.HTMLInputTypeAttribute | undefined;
 }
-const FormInput = (props: FormInputProps) => {
+const FormInput = <T extends FieldValues>(props: FormInputProps<T>) => {
   const { field, fieldState } = useController(props);
   return (
     <div className="mb-2">
