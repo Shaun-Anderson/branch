@@ -1,4 +1,4 @@
-import { Navigation } from "../components/Navigation";
+// import { Navigation } from "../components/Navigation";
 import type { NextPage } from "next";
 import Head from "next/head";
 import styles from "../styles/Home.module.css";
@@ -12,7 +12,7 @@ const Home: NextPage = () => {
         <link rel="icon" href="/favicon.ico" />
       </Head>
 
-      <Navigation />
+      {/* <Navigation /> */}
 
       <main className={styles.main}>
         <h1 className={styles.title}>Welcome to branch</h1>
