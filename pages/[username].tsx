@@ -13,22 +13,20 @@ import {
   linkColorScheme,
   linkRounding,
 } from "../utils/colorSchemes";
+import { supabase } from "../utils/supabaseClient";
 
 export const getServerSideProps: GetServerSideProps = async (context) => {
   const { username } = context.params;
   console.log(username);
-  // const { user, token } = await supabaseClient.auth.api.getUserByCookie(
-  //   context.req
-  // );
-  // supabaseClient.auth.setAuth(token as string);
 
   // user details
-  const userDetails = await supabaseClient
+  const userDetails = await supabase
     .from<UserDetails>("profiles")
     .select("*")
     .eq("username", username)
     .single();
   console.log(supabaseClient);
+  console.log(userDetails);
   if (!userDetails.data) {
     return {
       redirect: {
@@ -38,7 +36,7 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
     };
   }
   // links
-  const links = await supabaseClient
+  const links = await supabase
     .from<Link>("links")
     .select("*")
     .eq("user_id", userDetails.data.id)
@@ -73,20 +71,25 @@ const PublicProfile = ({
           />
         </Head>
         <main className={styles.main}>
-          <Image
-            loader={myLoader}
-            src="me.png"
-            alt="Profile picture"
-            className="rounded-full  border-2 border-black border-solid object-cover bg-gray-500"
-            width={100}
-            height={100}
-          />
+          <div>
+            <Image
+              loader={myLoader}
+              src="me.png"
+              alt="Profile picture"
+              className="rounded-full  border-2 border-black border-solid object-cover bg-gray-500"
+              width={600}
+              height={450}
+              loading="eager"
+              layout="responsive"
+              // placeholder="blur"
+            />
+          </div>
           <h1 className="text-3xl font-bold mt-5">@{userDetails?.username}</h1>
           <p className=" max-w-xl w-full text-sm text-center my-4 p-2   ">
             {userDetails?.bio}
           </p>
           {data.map((item: Link, index: number) => (
-            <div style={{ width: "100%", maxWidth: "500px" }}>
+            <div style={{ width: "100%", maxWidth: "500px" }} key={index}>
               <div className="flex">
                 <a
                   href={item.url}
