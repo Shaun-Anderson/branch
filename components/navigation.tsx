@@ -8,14 +8,14 @@ import { ArrowLeftIcon, UserCircleIcon } from "@heroicons/react/solid";
 
 export const Navigation = () => {
   const { user, userDetails } = useUser();
-  const myLoader = ({ src, width }) => {
+  const myLoader = (): string => {
     if (!userDetails) {
       return "https://via.placeholder.com/150";
     }
-    const { publicURL, error } = supabaseClient.storage
+    const { publicURL } = supabaseClient.storage
       .from("avatars")
       .getPublicUrl(userDetails.avatar_url ?? "");
-    return publicURL;
+    return publicURL as string;
   };
   return (
     <nav className="sticky backdrop-blur-sm bg-white/30 top-0  z-10 transition-all duration-150">

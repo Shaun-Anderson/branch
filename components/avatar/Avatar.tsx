@@ -1,5 +1,6 @@
+import { getErrorMessage } from "@/utils/errors";
 import { supabaseClient } from "@supabase/supabase-auth-helpers/nextjs";
-import { ChangeEventHandler, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 
 export default function Avatar({
   url,
@@ -28,10 +29,7 @@ export default function Avatar({
       const url = URL.createObjectURL(data as Blob);
       setAvatarUrl(url);
     } catch (error) {
-      let message;
-      if (error instanceof Error) message = error.message;
-      else message = String(error);
-      console.log("Error downloading image: ", message);
+      console.log("Error downloading image: ", getErrorMessage(error));
     }
   }
 

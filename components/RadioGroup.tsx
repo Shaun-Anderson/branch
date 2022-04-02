@@ -4,7 +4,7 @@ interface RadioGroupProps {
   name: string;
   defaultValue: string | number;
   items: RadioGroupItem[];
-  onChange: React.MouseEventHandler<HTMLInputElement>;
+  onChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
 }
 
 interface RadioGroupItem {
@@ -18,8 +18,8 @@ export default function RadioGroup(props: RadioGroupProps) {
   const [selected, setSelected] = useState(props.defaultValue);
   return (
     <ul className="flex overflow-x-scroll space-x-5 p-2  mx-auto">
-      {props.items.map((item: RadioGroupItem) => (
-        <li className="relative w-36">
+      {props.items.map((item: RadioGroupItem, index: number) => (
+        <li className="relative w-36" key={index}>
           <input
             className="sr-only peer"
             type="radio"
@@ -27,7 +27,7 @@ export default function RadioGroup(props: RadioGroupProps) {
             value={item.value}
             name={props.name}
             id={item.id}
-            onClick={(e) => {
+            onChange={(e) => {
               setSelected(item.value);
               props.onChange(e);
             }}

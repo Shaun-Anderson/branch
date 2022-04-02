@@ -4,8 +4,7 @@ import { Link } from "../types/Link";
 import { UserDetails } from "../types/UserDetails";
 import Head from "next/head";
 import styles from "../styles/Home.module.css";
-import { Navigation } from "../components/navigation";
-import Image from "next/image";
+import Image, { ImageLoaderProps } from "next/image";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faFacebook } from "@fortawesome/free-brands-svg-icons";
 import {
@@ -14,19 +13,21 @@ import {
   linkRounding,
 } from "../utils/colorSchemes";
 import { supabase } from "../utils/supabaseClient";
+import { ParsedUrlQuery } from "querystring";
+
+interface Params extends ParsedUrlQuery {
+  username: string;
+}
 
 export const getServerSideProps: GetServerSideProps = async (context) => {
-  const { username } = context.params;
-  console.log(username);
-
+  const { username } = context.params as Params;
   // user details
   const userDetails = await supabase
     .from<UserDetails>("profiles")
     .select("*")
     .eq("username", username)
     .single();
-  console.log(supabaseClient);
-  console.log(userDetails);
+
   if (!userDetails.data) {
     return {
       redirect: {
@@ -51,14 +52,14 @@ const PublicProfile = ({
   userDetails: UserDetails;
   data: Link[];
 }) => {
-  const myLoader = ({ src, width }) => {
+  const myLoader = ({ src, width }: ImageLoaderProps): string => {
     if (!userDetails) {
       return "https://via.placeholder.com/150";
     }
-    const { publicURL, error } = supabaseClient.storage
+    const { publicURL } = supabaseClient.storage
       .from("avatars")
       .getPublicUrl(userDetails.avatar_url ?? "");
-    return publicURL;
+    return publicURL as string;
   };
   return (
     <div className={`${Object.values(colorScheme)[userDetails.color_scheme]}`}>
@@ -77,10 +78,10 @@ const PublicProfile = ({
               src="me.png"
               alt="Profile picture"
               className="rounded-full  border-2 border-black border-solid object-cover bg-gray-500"
-              width={600}
-              height={450}
-              loading="eager"
-              layout="responsive"
+              width={100}
+              height={100}
+              // loading="eager"
+              // layout="responsive"
               // placeholder="blur"
             />
           </div>

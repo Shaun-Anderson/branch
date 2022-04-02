@@ -1,7 +1,7 @@
 import React from "react";
 import { useController, UseControllerProps } from "react-hook-form";
 
-interface FormInputProps extends UseControllerProps<T> {
+interface FormInputProps extends UseControllerProps {
   label: string;
   placeholder?: string;
   type: React.HTMLInputTypeAttribute | undefined;

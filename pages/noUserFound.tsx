@@ -1,28 +1,9 @@
-import { supabaseClient } from "@supabase/supabase-auth-helpers/nextjs";
-import { GetServerSideProps } from "next";
-import { Link } from "../types/Link";
-import { UserDetails } from "../types/UserDetails";
+import { NextPage } from "next";
 import Head from "next/head";
 import styles from "../styles/Home.module.css";
-import { Navigation } from "../components/navigation";
-import Image from "next/image";
+import { Navigation } from "../components/Navigation";
 
-const PublicProfile = ({
-  userDetails,
-  data,
-}: {
-  userDetails: UserDetails;
-  data: Link[];
-}) => {
-  const myLoader = ({ src, width }) => {
-    if (!userDetails) {
-      return "https://via.placeholder.com/150";
-    }
-    const { publicURL, error } = supabaseClient.storage
-      .from("avatars")
-      .getPublicUrl(userDetails.avatar_url ?? "");
-    return publicURL;
-  };
+const UserNotFound: NextPage = () => {
   return (
     <>
       <Navigation />
@@ -41,4 +22,4 @@ const PublicProfile = ({
     </>
   );
 };
-export default PublicProfile;
+export default UserNotFound;

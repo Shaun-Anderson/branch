@@ -37,7 +37,7 @@ const SignUp = () => {
         await supabaseClient
           .from<UserDetails>("users")
           .update({
-            full_name: name,
+            username: name,
           })
           .eq("id", createdUser.id);
         console.log(createdUser);

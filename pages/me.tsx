@@ -2,7 +2,7 @@ import type { GetServerSideProps, NextPage } from "next";
 import Head from "next/head";
 import styles from "../styles/Home.module.css";
 import { DropResult, resetServerContext } from "react-beautiful-dnd";
-import { Fragment, useEffect, useState } from "react";
+import { Fragment, useState } from "react";
 import { DragDropContext, Droppable, Draggable } from "../components/dnd";
 import {
   supabaseClient,
@@ -16,9 +16,7 @@ import { Link } from "../types/Link";
 import { UserDetails } from "../types/UserDetails";
 import {
   colorScheme,
-  color_scheme as color_schemeEnum,
   linkColorScheme,
-  linkcolor_scheme,
   linkRounding,
 } from "../utils/colorSchemes";
 import {
@@ -34,6 +32,7 @@ import {
 } from "@heroicons/react/solid";
 import RadioGroup from "../components/RadioGroup";
 import { Dialog, Menu, Transition } from "@headlessui/react";
+import { getErrorMessage } from "@/utils/errors";
 
 export const _getServerSideProps: GetServerSideProps = async ({ req }) => {
   resetServerContext();
@@ -60,7 +59,13 @@ export const getServerSideProps = withAuthRequired({
   redirectTo: "/signin",
 });
 
-const Me: NextPage = ({
+interface MeProps {
+  user: User;
+  userDetails: UserDetails;
+  data: Link[];
+}
+
+const Me: NextPage<MeProps> = ({
   user,
   userDetails,
   data,
@@ -99,7 +104,7 @@ const Me: NextPage = ({
       }
       setIsSettingsOpen(false);
     } catch (error) {
-      alert(error.message);
+      alert(getErrorMessage(error));
     } finally {
       setLoading(false);
     }
@@ -121,7 +126,7 @@ const Me: NextPage = ({
         throw error;
       }
     } catch (error) {
-      alert(error.message);
+      alert(getErrorMessage(error));
     } finally {
       setLoading(false);
     }
@@ -161,7 +166,7 @@ const Me: NextPage = ({
 
   // Dnd Functions
   const reorder = (
-    list: Item[],
+    list: Link[],
     startIndex: number,
     endIndex: number
   ): Link[] => {
@@ -214,7 +219,7 @@ const Me: NextPage = ({
         </Head>
         <main className={styles.main}>
           <Avatar
-            url={avatar_url}
+            url={avatar_url as string}
             size={100}
             onUpload={(url: string) => {
               setAvatarUrl(url);
@@ -254,7 +259,7 @@ const Me: NextPage = ({
                 <div
                   {...provided.droppableProps}
                   ref={provided.innerRef}
-                  style={{ width: "100%", maxWidth: "800px" }}
+                  style={{ width: "100%", maxWidth: "700px" }}
                   // style={getListStyle(snapshot.isDraggingOver)}
                 >
                   {links.map((item: Link, index: number) => (
@@ -495,6 +500,7 @@ const Me: NextPage = ({
                     },
                   ]}
                   onChange={(event: React.ChangeEvent<HTMLInputElement>) => {
+                    console.log(event);
                     setUserSettings({
                       ...userSettings,
                       color_scheme: event.target.value as unknown as number,
@@ -535,7 +541,7 @@ const Me: NextPage = ({
                         "bg-black text-white rounded-md hover:bg-gray-600 peer-checked:ring-green-500 peer-checked:ring-2 peer-checked:border-transparent",
                     },
                   ]}
-                  onChange={(event: React.ChangeEvent<HTMLInputElement>) => {
+                  onChange={(event) => {
                     setUserSettings({
                       ...userSettings,
                       link_color_scheme: event.target
@@ -584,7 +590,7 @@ const Me: NextPage = ({
                         "bg-white rounded-full hover:bg-gray-50 peer-checked:ring-green-500 peer-checked:ring-2 peer-checked:border-transparent",
                     },
                   ]}
-                  onChange={(event: React.ChangeEvent<HTMLInputElement>) => {
+                  onChange={(event) => {
                     setUserSettings({
                       ...userSettings,
                       link_rounding: event.target.value as unknown as number,
@@ -594,11 +600,11 @@ const Me: NextPage = ({
               </div>
             </div>
             <div className="flex space-x-2">
-              <button className="transition cursor-pointer my-2 ease-in-out rounded bg-red-50 p-5  text-red-500 hover:bg-red-100">
+              <button className="transition cursor-pointer my-2 ease-in-out rounded-lg bg-red-50 p-5  text-red-500 hover:bg-red-100">
                 Logout
               </button>
               <button
-                className="transition grow cursor-pointer my-2 ease-in-out rounded-lg bg-teal-50 p-5  text-teal-500 hover:bg-teal-100"
+                className="transition grow cursor-pointer my-2 ease-in-out rounded-lg bg-teal-100 p-5  text-teal-900 hover:bg-teal-200"
                 onClick={() => updateProfile()}
               >
                 Submit
@@ -651,6 +657,7 @@ const Me: NextPage = ({
                       Are you sure you want to delete this link? this will be
                       permanently removed. This action cannot be undone.
                     </Dialog.Description>
+                    <p className="text-sm text-black">{selectedLink?.title}</p>
 
                     <div className="mt-4 flex justify-end space-x-2">
                       <button

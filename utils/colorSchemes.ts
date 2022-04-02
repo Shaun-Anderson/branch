@@ -8,7 +8,7 @@ export enum colorScheme {
 
 export enum linkColorScheme {
   "None" = "",
-  "Light" = "text-black bg-stone-50",
+  "Light" = "text-black bg-white",
   "Regal" = "text-white bg-regal-blue",
   "Dark" = "text-white bg-black",
 }
