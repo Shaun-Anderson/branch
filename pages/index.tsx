@@ -25,7 +25,7 @@ const Home: NextPage = () => {
           </p>
           <div className="flex justify-center items-center">
             <Link href={"/signup"} passHref>
-              <a className=" transition-all ease-in-out px-5 py-3 font-semibold shadow-md rounded-lg mt-5 bg-cyan-400 text-white hover:scale-105">
+              <a className=" transition-all ease-in-out px-5 py-3 font-semibold shadow-md rounded-lg my-10 bg-black text-white hover:scale-105">
                 Sign up
               </a>
             </Link>
