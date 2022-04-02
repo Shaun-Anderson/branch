@@ -1,15 +1,23 @@
 import { supabaseClient } from "@supabase/supabase-auth-helpers/nextjs";
-import { useEffect, useState } from "react";
+import { ChangeEventHandler, useEffect, useState } from "react";
 
-export default function Avatar({ url, size, onUpload }) {
-  const [avatarUrl, setAvatarUrl] = useState(null);
+export default function Avatar({
+  url,
+  size,
+  onUpload,
+}: {
+  url: string;
+  size: number;
+  onUpload: (url: string) => void;
+}) {
+  const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
   const [uploading, setUploading] = useState(false);
 
   useEffect(() => {
     if (url) downloadImage(url);
   }, [url]);
 
-  async function downloadImage(path) {
+  async function downloadImage(path: string) {
     try {
       const { data, error } = await supabaseClient.storage
         .from("avatars")
@@ -17,14 +25,17 @@ export default function Avatar({ url, size, onUpload }) {
       if (error) {
         throw error;
       }
-      const url = URL.createObjectURL(data);
+      const url = URL.createObjectURL(data as Blob);
       setAvatarUrl(url);
     } catch (error) {
-      console.log("Error downloading image: ", error.message);
+      let message;
+      if (error instanceof Error) message = error.message;
+      else message = String(error);
+      console.log("Error downloading image: ", message);
     }
   }
 
-  async function uploadAvatar(event) {
+  async function uploadAvatar(event: React.ChangeEvent<HTMLInputElement>) {
     try {
       setUploading(true);
 
@@ -38,9 +49,15 @@ export default function Avatar({ url, size, onUpload }) {
       const filePath = `${fileName}`;
 
       if (avatarUrl) {
-        let { error: updateError } = await supabaseClient.storage
+        console.log(`trying to update ${avatarUrl}`);
+        console.log(`trying to update ${url}`);
+
+        const { data, error: updateError } = await supabaseClient.storage
           .from("avatars")
-          .update(url, file);
+          .update(url, file, {
+            cacheControl: "3600",
+            upsert: false,
+          });
 
         if (updateError) {
           throw updateError;
@@ -58,7 +75,10 @@ export default function Avatar({ url, size, onUpload }) {
       }
       onUpload(filePath);
     } catch (error) {
-      alert(error.message);
+      let message;
+      if (error instanceof Error) message = error.message;
+      else message = String(error);
+      alert(message);
     } finally {
       setUploading(false);
     }
@@ -85,7 +105,8 @@ export default function Avatar({ url, size, onUpload }) {
         <input
           style={{
             visibility: "hidden",
-            position: "absolute",
+            // position: "absolute",
+            width: 0,
           }}
           type="file"
           id="single"
