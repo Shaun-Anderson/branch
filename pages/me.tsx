@@ -230,26 +230,25 @@ const Me: NextPage<MeProps> = ({
           <p className=" max-w-xl w-full text-sm text-center my-4 p-2 rounded-lg whitespace-pre-line">
             {userSettings.bio}
           </p>
-          <div className=" w-full justify-center flex space-x-2">
+          <div className=" w-fit justify-center flex space-x-2 absolute bottom-2 px-3 rounded-3xl py-1 bg-neutral-500/10">
             <button
               onClick={() => setIsAddOpen(true)}
-              className=" transition flex items-center  text-bold my-2 ease-in-out rounded-md bg-teal-50 py-2 px-3  text-teal-500 hover:bg-teal-100"
+              className=" transition flex items-center text-sm  font-medium my-1 ease-in-out rounded-2xl  py-1 px-3  text-teal-500 hover:bg-teal-500 hover:text-white"
             >
               <PlusIcon
-                className="w-5 h-5 sm:w-4 sm:h-4 mr-2 "
+                className="w-5 h-5 mr-2 "
                 aria-hidden="true"
               />
               New link
             </button>
             <button
               onClick={() => setIsSettingsOpen(true)}
-              className=" transition my-2 flex items-center ease-in-out rounded-md bg-indigo-50 py-2 px-3  text-indigo-500 hover:bg-indigo-100"
+              className=" transition my-2 flex items-center ease-in-out rounded-xl bg-indigo-50 p-1  text-indigo-500 hover:bg-indigo-100"
             >
               <CogIcon
-                className="mr-2 w-5 h-5 sm:w-4 sm:h-4 "
+                className="w-6 h-6"
                 aria-hidden="true"
               />
-              Settings
             </button>
           </div>
 
