@@ -50,7 +50,7 @@ export default function Drawer({
           >
             <div
               className={`flex flex-col justify-between z-50
-	                          w-full max-w-full sm:max-w-lg md:max-w-sm p-6 overflow-hidden text-left
+	                          w-full max-w-full sm:max-w-lg md:max-w-lg p-6 overflow-hidden text-left
 	                          align-middle shadow-xl rounded-r-2xl bg-white`}
             >
               <div className="h-full flex flex-col">
