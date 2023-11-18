@@ -23,6 +23,7 @@ import {
   ArrowLeftIcon,
   CogIcon,
   DotsVerticalIcon,
+  EyeIcon,
   PencilAltIcon,
   PlusIcon,
   SelectorIcon,
@@ -33,6 +34,7 @@ import {
 import RadioGroup from "../components/RadioGroup";
 import { Dialog, Menu, Transition } from "@headlessui/react";
 import { getErrorMessage } from "@/utils/errors";
+import {default as NextLink } from "next/link";
 
 export const _getServerSideProps: GetServerSideProps = async ({ req }) => {
   resetServerContext();
@@ -230,7 +232,7 @@ const Me: NextPage<MeProps> = ({
           <p className=" max-w-xl w-full text-sm text-center my-4 p-2 rounded-lg whitespace-pre-line">
             {userSettings.bio}
           </p>
-          <div className=" w-fit justify-center flex space-x-2 absolute bottom-2 px-3 rounded-3xl py-1 bg-neutral-500/10">
+          <div className=" w-fit justify-center flex space-x-2 absolute bottom-2 px-3 rounded-3xl py-1 bg-black/20">
             <button
               onClick={() => setIsAddOpen(true)}
               className=" transition flex items-center text-sm  font-medium my-1 ease-in-out rounded-2xl  py-1 px-3  text-teal-500 hover:bg-teal-500 hover:text-white"
@@ -241,7 +243,18 @@ const Me: NextPage<MeProps> = ({
               />
               New link
             </button>
+            <NextLink
+              href="/ANDO"
+              passHref={true}
+            >
+              <button aria-label="Preview my links" className="transition my-2 flex items-center ease-in-out rounded-xl bg-indigo-50 p-1  text-black hover:bg-indigo-100">
+              <EyeIcon                  
+                className="w-6 h-6"
+  />
+              </button>
+            </NextLink>
             <button
+              aria-label="Show page settings"
               onClick={() => setIsSettingsOpen(true)}
               className=" transition my-2 flex items-center ease-in-out rounded-xl bg-indigo-50 p-1  text-indigo-500 hover:bg-indigo-100"
             >
@@ -252,13 +265,15 @@ const Me: NextPage<MeProps> = ({
             </button>
           </div>
 
+<div className="flex w-full justify-center">
           <DragDropContext onDragEnd={onDragEnd}>
             <Droppable droppableId="droppable">
               {(provided, snapshot): JSX.Element => (
                 <div
                   {...provided.droppableProps}
                   ref={provided.innerRef}
-                  style={{ width: "100%", maxWidth: "700px" }}
+                  style={{ width: "100%" }}
+                  className="max-w-lg"
                   // style={getListStyle(snapshot.isDraggingOver)}
                 >
                   {links.map((item: Link, index: number) => (
@@ -271,14 +286,14 @@ const Me: NextPage<MeProps> = ({
                         <div
                           ref={provided.innerRef}
                           {...provided.draggableProps}
-                          className="flex space-x-2"
+                          className="flex space-x-2 relative"
                         >
                           <div
                             {...provided.dragHandleProps}
-                            className="flex items-center justify-center mr-5"
+                            className="flex items-center justify-center absolute top-0 bottom-0 -left-2 my-2 bg-white shadow z-10 rounded-xl "
                           >
                             <SelectorIcon
-                              className="w-5 h-5 text-black-900 opacity-50"
+                              className="w-5 h-5 text-black opacity-50"
                               aria-hidden="true"
                             />
                           </div>
@@ -366,9 +381,9 @@ const Me: NextPage<MeProps> = ({
                             </Menu>
                           </div>
 
-                          <div className=" hidden align-center my-1 sm:visible sm:flex space-x-2 ">
+                          <div className=" hidden align-center my-1 sm:visible sm:flex space-x-2 absolute bottom-0 right-2 top-0 ">
                             <button
-                              className=" flex justify-center items-center p-2 self-center rounded-md bg-amber-50 hover:bg-amber-100"
+                              className=" transition-all flex justify-center items-center p-2 self-center rounded-lg border border-amber-200/50 bg-amber-200/50 hover:bg-amber-300/50"
                               onClick={() => {
                                 setSelectedLink(item);
                                 setIsEditOpen(true);
@@ -380,14 +395,14 @@ const Me: NextPage<MeProps> = ({
                               />
                             </button>
                             <button
-                              className="  p-2 flex justify-center items-center self-center rounded-md  bg-red-50 hover:bg-red-100"
+                              className=" transition-all group  p-2 flex justify-center items-center self-center rounded-md border border-red-200/50 bg-red-300/50 hover:bg-red-500/50"
                               onClick={() => {
                                 setSelectedLink(item);
                                 setIsDeleteOpen(true);
                               }}
                             >
                               <TrashIcon
-                                className="w-5 h-5 sm:w-4 sm:h-4 text-red-400"
+                                className="w-5 h-5 sm:w-4 sm:h-4 text-red-600 group-hover:text-white"
                                 aria-hidden="true"
                               />
                             </button>
@@ -401,6 +416,7 @@ const Me: NextPage<MeProps> = ({
               )}
             </Droppable>
           </DragDropContext>
+          </div>
           {/* Add Drawer */}
           <Drawer
             isOpen={isAddOpen}
